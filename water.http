@@ -1,0 +1,63 @@
+POST http://localhost:4000/api/samples
+Content-Type: application/json
+
+{
+    "aluminium": 0.1,
+    "ammonia": 0.2,
+    "arsenic": 0.005,
+    "barium": 0.03,
+    "cadmium": 0.001,
+    "chloramine": 0.4,
+    "chromium": 0.01,
+    "copper": 0.02,
+    "fluoride": 0.7,
+    "bacteria": 0.001,
+    "viruses": 0.0001,
+    "lead": 0.005,
+    "nitrates": 0.05,
+    "nitrites": 0.01,
+    "mercury": 0.001,
+    "perchlorate": 0.002,
+    "radium": 0.002,
+    "selenium": 0.01,
+    "silver": 0.002,
+    "uranium": 0.002
+}
+
+####
+GET http://localhost:4000/api/samples
+
+####
+GET http://localhost:4000/api/samples/6
+
+####
+PUT http://localhost:4000/api/samples/2
+Content-Type: application/json
+
+{
+    "aluminium": 0.15,
+    "ammonia": 0.25,
+    "arsenic": 0.006,
+    "barium": 0.04,
+    "cadmium": 0.0015,
+    "chloramine": 0.45,
+    "chromium": 0.015,
+    "copper": 0.025,
+    "fluoride": 0.75,
+    "bacteria": 0.0012,
+    "viruses": 0.00015,
+    "lead": 0.0055,
+    "nitrates": 0.055,
+    "nitrites": 0.012,
+    "mercury": 0.0012,
+    "perchlorate": 0.0025,
+    "radium": 0.0022,
+    "selenium": 0.012,
+    "silver": 0.0025,
+    "uranium": 0.0025,
+    "is_safe": false
+}
+
+####
+DELETE http://localhost:4000/api/samples/5
+

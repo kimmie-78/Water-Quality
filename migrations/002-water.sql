@@ -1,0 +1,4 @@
+INSERT INTO water_samples (aluminium, ammonia, arsenic, barium, cadmium, chloramine, chromium, copper, fluoride, bacteria, viruses, lead, nitrates, nitrites, mercury, perchlorate, radium, selenium, silver, uranium, is_safe)
+VALUES (0.1, 0.2, 0.005, 0.03, 0.001, 0.4, 0.01, 0.02, 0.7, 0.001, 0.0001, 0.005, 0.05, 0.01, 0.001, 0.002, 0.002, 0.01, 0.002, 0.002, 1);
+INSERT INTO water_samples (aluminium, ammonia, arsenic, barium, cadmium, chloramine, chromium, copper, fluoride, bacteria, viruses, lead, nitrates, nitrites, mercury, perchlorate, radium, selenium, silver, uranium, is_safe)
+VALUES (0.98, 1, 0.013, 0.15, 0.012, 0.7, 0.87, 0.08, 2, 0.123, 0.0020, 0.024, 0.10, 0.03, 0.008, 0.005, 0.014, 0.03, 0.009, 0.056, 0);
