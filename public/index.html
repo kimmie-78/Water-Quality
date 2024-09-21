@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Water Quality Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            background-color: #0077b6;
+            color: white;
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h2 {
+            margin-top: 0;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar a:hover {
+            background-color: #005f8a;
+        }
+
+        /* Main content styles */
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .dashboard {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            color: #0077b6;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #0077b6;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #005f8a;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f1f1f1;
+            border-left: 5px solid #0077b6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Dashboard</h2>
+        
+        <a href="#">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="#forum">Forum</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div x-data="waterQualityDashboard" class="dashboard">
+            <h1>Water Quality Dashboard</h1>
+
+            <!-- Chart Container -->
+            <canvas id="waterQualityChart"></canvas>
+
+            <!-- Input Form for New Water Sample -->
+            <div>
+                <h2>Enter Water Sample Data</h2>
+                <form @submit.prevent="addSample">
+                    <label for="aluminium">Aluminium: </label>
+                    <input type="number" id="aluminium" x-model="newSample.aluminium" step="0.01" />
+
+                    <label for="ammonia">Ammonia: </label>
+                    <input type="number" id="ammonia" x-model="newSample.ammonia" step="0.01" />
+
+                    <label for="arsenic">Arsenic: </label>
+                    <input type="number" id="arsenic" x-model="newSample.arsenic" step="0.01" />
+
+                    <label for="barium">Barium: </label>
+                    <input type="number" id="barium" x-model="newSample.barium" step="0.01" />
+
+                    <button type="submit">Submit Sample</button>
+                </form>
+            </div>
+
+            <!-- Feedback Message on Water Quality -->
+            <div x-show="feedbackMessage" class="feedback">
+                <h2>Feedback</h2>
+                <p x-text="feedbackMessage"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function waterQualityDashboard() {
+    return {
+        samples: [],
+        newSample: {
+            aluminium: null,
+            ammonia: null,
+            arsenic: null,
+            barium: null,
+        },
+        chart: null,
+        feedbackMessage: "",
+
+        init() {
+            this.fetchSamples();
+        },
+
+        async fetchSamples() {
+            try {
+                this.samples = [
+                    { aluminium: 0.1, ammonia: 0.3, arsenic: 0.005, barium: 1.0 },
+                    { aluminium: 0.15, ammonia: 0.4, arsenic: 0.007, barium: 1.5 },
+                ];
+                this.renderChart();
+            } catch (error) {
+                console.error('Error fetching samples:', error);
+            }
+        },
+
+        addSample() {
+            this.replaceNullWithZero(this.newSample);
+            this.samples.push({ ...this.newSample });
+
+            const isSafe = this.isSafe(this.newSample);
+
+            if (isSafe) {
+                this.feedbackMessage = "The water is clean and safe!";
+            } else {
+                this.feedbackMessage = "The water is unsafe! Please treat it by reducing contaminants.";
+            }
+
+            this.renderChart();
+            this.newSample = {
+                aluminium: null,
+                ammonia: null,
+                arsenic: null,
+                barium: null,
+            };
+        },
+
+        renderChart() {
+            const labels = this.samples.map((_, index) => `Sample ${index + 1}`);
+            const data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "Aluminium",
+                        data: this.samples.map(sample => sample.aluminium),
+                        backgroundColor: "rgba(54, 162, 235, 0.5)",
+                    },
+                    {
+                        label: "Ammonia",
+                        data: this.samples.map(sample => sample.ammonia),
+                        backgroundColor: "rgba(255, 99, 132, 0.5)",
+                    },
+                    {
+                        label: "Arsenic",
+                        data: this.samples.map(sample => sample.arsenic),
+                        backgroundColor: "rgba(75, 192, 192, 0.5)",
+                    },
+                    {
+                        label: "Barium",
+                        data: this.samples.map(sample => sample.barium),
+                        backgroundColor: "rgba(153, 102, 255, 0.5)",
+                    },
+                ],
+            };
+
+            const config = {
+                type: "bar",
+                data: data,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            };
+
+            if (this.chart) {
+                this.chart.destroy();
+            }
+
+            const ctx = document.getElementById("waterQualityChart").getContext("2d");
+            this.chart = new Chart(ctx, config);
+        },
+
+        isSafe(sample) {
+            return (
+                sample.aluminium < 0.2 &&
+                sample.ammonia < 0.5 &&
+                sample.arsenic < 0.01 &&
+                sample.barium < 2.0
+            );
+        },
+
+        replaceNullWithZero(sample) {
+            for (let key in sample) {
+                if (sample[key] === null) {
+                    sample[key] = 0;
+                }
+            }
+        },
+    };
+}
+</script>
+
+</body>
+</html>

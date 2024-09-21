@@ -24,17 +24,17 @@
   },
   "contributors": [],
   "scripts": {
-    "dev": "nodemon express.js",
-    "test": "node express.js",
-    "build": "node express.js"
+    "dev": "",
+    "test": ""
   },
   "dependencies": {
+    "axios": "^1.7.7",
     "cors": "^2.8.5",
-    "express": "^4.19.2",
+    "express": "^4.21.0",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.5"
   }
 }
