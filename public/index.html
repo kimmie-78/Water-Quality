@@ -1,273 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Water Quality Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            display: flex;
-        }
-
-        /* Sidebar styles */
-        .sidebar {
-            background-color: #0077b6;
-            color: white;
-            width: 250px;
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar h2 {
-            margin-top: 0;
-        }
-
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-            display: block;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .sidebar a:hover {
-            background-color: #005f8a;
-        }
-
-        /* Main content styles */
-        .content {
-            margin-left: 250px;
-            padding: 20px;
-            flex-grow: 1;
-        }
-
-        .dashboard {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        h1, h2 {
-            color: #0077b6;
-        }
-
-        form {
-            margin-top: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input[type="number"] {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        button {
-            background-color: #0077b6;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #005f8a;
-        }
-
-        .feedback {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f1f1f1;
-            border-left: 5px solid #0077b6;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
 
-<div class="container">
+<body x-data="waterQualityApp">
+
     <!-- Sidebar -->
-    <div class="sidebar">
-        <h2>Dashboard</h2>
-        
-        <a href="#">Home</a>
-        <a href="about.html">About Us</a>
-        <a href="#forum">Forum</a>
-    </div>
-
+    <aside class="sidebar">
+        <h2>Water Quality Dashboard</h2>
+        <p>Monitor and analyze water quality samples.</p>
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Samples</a></li>
+            <li><a href="#">Reports</a></li>
+        </ul>
+    </aside>
     <!-- Main Content -->
-    <div class="content">
-        <div x-data="waterQualityDashboard" class="dashboard">
-            <h1>Water Quality Dashboard</h1>
+    <main class="content">
+        <h1>Water Quality Overview</h1>
+        <h2>Sample Data ID: <span x-text="data.samples[data.samples.length - 1]?.id"></span></h2>
+        <button @click="showHistory = true" class="show-history-button">Show History</button>
+        <!-- History Popup -->
+        <div x-show="showHistory" class="popup">
+            <div class="popup-content">
+                <h2>Sample Data</h2>
+                <button @click="showHistory = false">Close</button>
+                <div class="scrollable-data">
+                    <template x-for="sample in data.samples" :key="sample.id">
+                        <div class="sample-entry">
+                            <p>ID: <span x-text="sample.id"></span></p>
+                            <p>Aluminium: <span x-text="sample.aluminium"></span></p>
+                            <p>Ammonia: <span x-text="sample.ammonia"></span></p>
+                            <p>Arsenic: <span x-text="sample.arsenic"></span></p>
+                            <p>Barium: <span x-text="sample.barium"></span></p>
+                            <p>Cadmium: <span x-text="sample.cadmium"></span></p>
+                            <p>Chloramine: <span x-text="sample.chloramine"></span></p>
+                            <p>Chromium: <span x-text="sample.chromium"></span></p>
+                            <p>Copper: <span x-text="sample.copper"></span></p>
+                            <p>Fluoride: <span x-text="sample.fluoride"></span></p>
+                            <p>Bacteria: <span x-text="sample.bacteria"></span></p>
+                            <p>Viruses: <span x-text="sample.viruses"></span></p>
+                            <p>Lead: <span x-text="sample.lead"></span></p>
+                            <p>Nitrates: <span x-text="sample.nitrates"></span></p>
+                            <p>Nitrites: <span x-text="sample.nitrites"></span></p>
+                            <p>Mercury: <span x-text="sample.mercury"></span></p>
+                            <p>Perchlorate: <span x-text="sample.perchlorate"></span></p>
+                            <p>Radium: <span x-text="sample.radium"></span></p>
+                            <p>Selenium: <span x-text="sample.selenium"></span></p>
+                            <p>Silver: <span x-text="sample.silver"></span></p>
+                            <p>Uranium: <span x-text="sample.uranium"></span></p>
 
-            <!-- Chart Container -->
-            <canvas id="waterQualityChart"></canvas>
-
-            <!-- Input Form for New Water Sample -->
-            <div>
-                <h2>Enter Water Sample Data</h2>
-                <form @submit.prevent="addSample">
-                    <label for="aluminium">Aluminium: </label>
-                    <input type="number" id="aluminium" x-model="newSample.aluminium" step="0.01" />
-
-                    <label for="ammonia">Ammonia: </label>
-                    <input type="number" id="ammonia" x-model="newSample.ammonia" step="0.01" />
-
-                    <label for="arsenic">Arsenic: </label>
-                    <input type="number" id="arsenic" x-model="newSample.arsenic" step="0.01" />
-
-                    <label for="barium">Barium: </label>
-                    <input type="number" id="barium" x-model="newSample.barium" step="0.01" />
-
-                    <button type="submit">Submit Sample</button>
-                </form>
-            </div>
-
-            <!-- Feedback Message on Water Quality -->
-            <div x-show="feedbackMessage" class="feedback">
-                <h2>Feedback</h2>
-                <p x-text="feedbackMessage"></p>
+                         
+                            <button @click="editSample(sample)" class="edit-button">Update</button>
+                            <button @click="deleteSample(sample.id)">Delete</button>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
-<script>
-function waterQualityDashboard() {
-    return {
-        samples: [],
-        newSample: {
-            aluminium: null,
-            ammonia: null,
-            arsenic: null,
-            barium: null,
-        },
-        chart: null,
-        feedbackMessage: "",
+        <!-- Edit Popup -->
+        <div x-show="editSampleData" class="popup">
+            <div class="popup-content">
+                <h2>Edit Sample Data</h2>
+                <button @click="editSampleData = false">Back</button>
+                <div>
+                    <label for="editAluminium">Aluminium:</label>
+                    <input type="text" id="editAluminium" x-model="sampleToEdit.aluminium">
+                    <!-- Repeat for all contaminants -->
+                    <button @click="updateSample(sampleToEdit.id)">Edit</button>
+                </div>
+            </div>
+        </div>
+        <div class="flex-container">
+            <canvas id="waterChart"></canvas>
 
-        init() {
-            this.fetchSamples();
-        },
+            <!-- Grid for Highest and Lowest Contaminants -->
+            <div x-show="data.highestLowest" class="contaminant-grid">
+                <h2>Highest and Lowest Contaminants</h2>
+                <div class="grid-container">
+                    <div class="grid-item">
+                        <strong>Highest:</strong>
+                        <span x-text="data.highestLowest.highest.name"></span>
+                        <span x-text="data.highestLowest.highest.value"></span>
+                    </div>
+                    <div class="grid-item">
+                        <strong>Lowest:</strong>
+                        <span x-text="data.highestLowest.lowest.name"></span>
+                        <span x-text="data.highestLowest.lowest.value"></span>
+                    </div>
+                </div>
+            </div>
 
-        async fetchSamples() {
-            try {
-                this.samples = [
-                    { aluminium: 0.1, ammonia: 0.3, arsenic: 0.005, barium: 1.0 },
-                    { aluminium: 0.15, ammonia: 0.4, arsenic: 0.007, barium: 1.5 },
-                ];
-                this.renderChart();
-            } catch (error) {
-                console.error('Error fetching samples:', error);
-            }
-        },
+        </div>
+        <!-- New Container for Line Graph -->
+        <div class="line-chart-container">
+            <h2>Sample Data ID: <span x-text="data.samples[data.samples.length - 1]?.id"></span></h2>
+            <div class="contaminant-key">
+                <h3>Key:</h3>
+                <div>
+                    <span style="color: green;">● Safe</span>
+                    <span style="color: red;">● Unsafe</span>
+                </div>
+            </div>
+            <canvas id="lineChart" width="600" height="400"></canvas>
 
-        addSample() {
-            this.replaceNullWithZero(this.newSample);
-            this.samples.push({ ...this.newSample });
+        </div>
+    </main>
 
-            const isSafe = this.isSafe(this.newSample);
 
-            if (isSafe) {
-                this.feedbackMessage = "The water is clean and safe!";
-            } else {
-                this.feedbackMessage = "The water is unsafe! Please treat it by reducing contaminants.";
-            }
 
-            this.renderChart();
-            this.newSample = {
-                aluminium: null,
-                ammonia: null,
-                arsenic: null,
-                barium: null,
-            };
-        },
-
-        renderChart() {
-            const labels = this.samples.map((_, index) => `Sample ${index + 1}`);
-            const data = {
-                labels: labels,
-                datasets: [
-                    {
-                        label: "Aluminium",
-                        data: this.samples.map(sample => sample.aluminium),
-                        backgroundColor: "rgba(54, 162, 235, 0.5)",
-                    },
-                    {
-                        label: "Ammonia",
-                        data: this.samples.map(sample => sample.ammonia),
-                        backgroundColor: "rgba(255, 99, 132, 0.5)",
-                    },
-                    {
-                        label: "Arsenic",
-                        data: this.samples.map(sample => sample.arsenic),
-                        backgroundColor: "rgba(75, 192, 192, 0.5)",
-                    },
-                    {
-                        label: "Barium",
-                        data: this.samples.map(sample => sample.barium),
-                        backgroundColor: "rgba(153, 102, 255, 0.5)",
-                    },
-                ],
-            };
-
-            const config = {
-                type: "bar",
-                data: data,
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                        },
-                    },
-                },
-            };
-
-            if (this.chart) {
-                this.chart.destroy();
-            }
-
-            const ctx = document.getElementById("waterQualityChart").getContext("2d");
-            this.chart = new Chart(ctx, config);
-        },
-
-        isSafe(sample) {
-            return (
-                sample.aluminium < 0.2 &&
-                sample.ammonia < 0.5 &&
-                sample.arsenic < 0.01 &&
-                sample.barium < 2.0
-            );
-        },
-
-        replaceNullWithZero(sample) {
-            for (let key in sample) {
-                if (sample[key] === null) {
-                    sample[key] = 0;
-                }
-            }
-        },
-    };
-}
-</script>
-
+    <script src="alpine.js"></script>
 </body>
+
 </html>
