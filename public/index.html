@@ -7,6 +7,10 @@
     <title>Water Quality Dashboard</title>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -14,24 +18,156 @@
 
     <!-- Sidebar -->
     <aside class="sidebar">
-        <h2>Water Quality Dashboard</h2>
-        <p>Monitor and analyze water quality samples.</p>
-        <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Samples</a></li>
-            <li><a href="#">Reports</a></li>
-        </ul>
+
+        <div class="header">
+
+            <!--Content before waves-->
+            <div class="inner-header flex">
+                <path fill="#FFFFFF" stroke="#000000" stroke-width="10" stroke-miterlimit="10" d="M57,283" />
+                <g>
+                    <path fill="#fff"
+                        d="M250.4,0.8C112.7,0.8,1,112.4,1,250.2c0,137.7,111.7,249.4,249.4,249.4c137.7,0,249.4-111.7,249.4-249.4
+C499.8,112.4,388.1,0.8,250.4,0.8z M383.8,326.3c-62,0-101.4-14.1-117.6-46.3c-17.1-34.1-2.3-75.4,13.2-104.1
+c-22.4,3-38.4,9.2-47.8,18.3c-11.2,10.9-13.6,26.7-16.3,45c-3.1,20.8-6.6,44.4-25.3,62.4c-19.8,19.1-51.6,26.9-100.2,24.6l1.8-39.7		c35.9,1.6,59.7-2.9,70.8-13.6c8.9-8.6,11.1-22.9,13.5-39.6c6.3-42,14.8-99.4,141.4-99.4h41L333,166c-12.6,16-45.4,68.2-31.2,96.2	c9.2,18.3,41.5,25.6,91.2,24.2l1.1,39.8C390.5,326.2,387.1,326.3,383.8,326.3z" />
+                </g>
+                </svg>
+                <h2>Water Quality Dashboard</h2>
+               
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Forum</a></li>
+                    <li><a href="#"><button @click="showHistory = true" class="show-history-button">Show
+                                History</button></a></li>
+                    <li><a href="#"> <button @click="openModal()" class="add-sample-btn">Add New Sample</button></a></li>
+                    <li><a href="#"> <button @click="downloadCSV" class="show-history-button">Download All Data as CSV</button></a></li>
+                </ul>
+            </div>
+
+            <!--Waves Container-->
+            <div>
+                <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                    viewBox="0 24 190 28" preserveAspectRatio="none" shape-rendering="auto">
+                    <defs>
+                        <path id="gentle-wave"
+                            d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+                    </defs>
+                    <g class="parallax">
+                        <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7" />
+                        <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
+                        <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(255,255,255,0.3)" />
+                        <use xlink:href="#gentle-wave" x="48" y="7" fill="#fff" />
+                    </g>
+                </svg>
+            </div>
     </aside>
     <!-- Main Content -->
     <main class="content">
-        <h1>Water Quality Overview</h1>
-        <h2>Sample Data ID: <span x-text="data.samples[data.samples.length - 1]?.id"></span></h2>
-        <button @click="showHistory = true" class="show-history-button">Show History</button>
+        <h1 class="fancy-title">Water Quality Overview   <a href="#"><i class="fa-solid fa-user"></i></a></h1>
+        <!-- <a href="#"><i class="fa-solid fa-user"></i></a> -->
+        <h2 class="fancy-title-2">Sample Data ID: <span x-text="data.samples[data.samples.length - 1]?.id"></span></h2>
+        
+    <div id="alerts" x-show="alerts.length > 0">
+        <template x-for="alert in alerts" :key="alert.message">
+            <div class="alert" style="background: red; color: white; margin: 10px; padding: 10px;">
+                <p x-text="alert.message"></p>
+                <p x-text="'Unsafe Contaminants: ' + alert.contaminants.join(', ')"></p>
+            </div>
+        </template>
+    </div>
+
+        <!-- Grid for Highest and Lowest Contaminants -->
+        <div x-show="data.highestLowest" class="contaminant-grid">
+            <div class="grid-container">
+                <div class="grid-item">
+                    <strong>Highest Contaminant:</strong>
+                    <span x-text="data.highestLowest.highest.name"></span>
+                    <span x-text="data.highestLowest.highest.value"></span>
+                </div>
+                <div class="grid-item">
+                    <strong>Lowest Contaminant:</strong>
+                    <span x-text="data.highestLowest.lowest.name"></span>
+                    <span x-text="data.highestLowest.lowest.value"></span>
+                </div>
+                
+            </div>
+        </div>
+       <!-- Modal Container -->
+    <div x-show="isModalOpen" @click.away="closeModal()" class="modal-container">
+        <div class="modal-content">
+            <h2>Add New Water Sample</h2>
+            <form @submit.prevent="submitSample">
+                <label for="aluminium">Aluminium:</label>
+                <input type="number" id="aluminium" v-model="newSample.aluminium" required>
+                
+                <label for="ammonia">Ammonia:</label>
+                <input type="number" id="ammonia" v-model="newSample.ammonia" required>
+                
+                <label for="arsenic">Arsenic:</label>
+                <input type="number" id="arsenic" v-model="newSample.arsenic" required>
+                
+                <label for="barium">Barium:</label>
+                <input type="number" id="barium" v-model="newSample.barium" required>
+                
+                <label for="cadmium">Cadmium:</label>
+                <input type="number" id="cadmium" v-model="newSample.cadmium" required>
+                
+                <label for="chloramine">Chloramine:</label>
+                <input type="number" id="chloramine" v-model="newSample.chloramine" required>
+                
+                <label for="chromium">Chromium:</label>
+                <input type="number" id="chromium" v-model="newSample.chromium" required>
+                
+                <label for="copper">Copper:</label>
+                <input type="number" id="copper" v-model="newSample.copper" required>
+                
+                <label for="fluoride">Fluoride:</label>
+                <input type="number" id="fluoride" v-model="newSample.fluoride" required>
+                
+                <label for="bacteria">Bacteria:</label>
+                <input type="number" id="bacteria" v-model="newSample.bacteria" required>
+                
+                <label for="viruses">Viruses:</label>
+                <input type="number" id="viruses" v-model="newSample.viruses" required>
+                
+                <label for="lead">Lead:</label>
+                <input type="number" id="lead" v-model="newSample.lead" required>
+                
+                <label for="nitrates">Nitrates:</label>
+                <input type="number" id="nitrates" v-model="newSample.nitrates" required>
+                
+                <label for="nitrites">Nitrites:</label>
+                <input type="number" id="nitrites" v-model="newSample.nitrites" required>
+                
+                <label for="mercury">Mercury:</label>
+                <input type="number" id="mercury" v-model="newSample.mercury" required>
+                
+                <label for="perchlorate">Perchlorate:</label>
+                <input type="number" id="perchlorate" v-model="newSample.perchlorate" required>
+                
+                <label for="radium">Radium:</label>
+                <input type="number" id="radium" v-model="newSample.radium" required>
+                
+                <label for="selenium">Selenium:</label>
+                <input type="number" id="selenium" v-model="newSample.selenium" required>
+                
+                <label for="silver">Silver:</label>
+                <input type="number" id="silver" v-model="newSample.silver" required>
+                
+                <label for="uranium">Uranium:</label>
+                <input type="number" id="uranium" v-model="newSample.uranium" required>
+                
+                <button type="submit">Submit</button>
+                <button type="button" @click="closeModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+        
+
         <!-- History Popup -->
         <div x-show="showHistory" class="popup">
             <div class="popup-content">
                 <h2>Sample Data</h2>
-                <button @click="showHistory = false">Close</button>
+                <button @click="showHistory = false" style="background-color: #008CBA;">Close</button>
                 <div class="scrollable-data">
                     <template x-for="sample in data.samples" :key="sample.id">
                         <div class="sample-entry">
@@ -57,9 +193,10 @@
                             <p>Silver: <span x-text="sample.silver"></span></p>
                             <p>Uranium: <span x-text="sample.uranium"></span></p>
 
-                         
-                            <button @click="editSample(sample)" class="edit-button">Update</button>
-                            <button @click="deleteSample(sample.id)">Delete</button>
+
+                            <button @click="editSample(sample)" class="edit-button"
+                                style="background-color: green;">Update</button>
+                            <button @click="deleteSample(sample.id) " style="background-color: red;">Delete</button>
                         </div>
                     </template>
                 </div>
@@ -82,37 +219,133 @@
         <div class="flex-container">
             <canvas id="waterChart"></canvas>
 
-            <!-- Grid for Highest and Lowest Contaminants -->
-            <div x-show="data.highestLowest" class="contaminant-grid">
-                <h2>Highest and Lowest Contaminants</h2>
-                <div class="grid-container">
-                    <div class="grid-item">
-                        <strong>Highest:</strong>
-                        <span x-text="data.highestLowest.highest.name"></span>
-                        <span x-text="data.highestLowest.highest.value"></span>
-                    </div>
-                    <div class="grid-item">
-                        <strong>Lowest:</strong>
-                        <span x-text="data.highestLowest.lowest.name"></span>
-                        <span x-text="data.highestLowest.lowest.value"></span>
-                    </div>
+            <div class="explanation-section">
+                <h2 class="fancy-title-2">Contaminant Information</h2>
+                <div class="grid-item">
+                    <strong>Highest Contaminant:</strong>
+                    <span x-text="data.highestLowest.highest.name"></span>
+                    <span x-text="data.highestLowest.highest.value"></span>
+                </div>
+                <div class="grid-item">
+                    <strong>Side Effects of Contaminant:</strong>
+                    <p x-show="data.highestLowest.highest.name === 'aluminium'">Excessive aluminium can cause skin
+                        irritation and has been linked to neurological issues.</p>
+                    <p x-show="data.highestLowest.highest.name === 'ammonia'">High levels of ammonia may irritate the
+                        skin, eyes, throat, and cause respiratory problems.</p>
+                    <p x-show="data.highestLowest.highest.name === 'arsenic'">Chronic exposure to arsenic can lead to
+                        cancer, skin lesions, cardiovascular diseases, and diabetes.</p>
+                    <p x-show="data.highestLowest.highest.name === 'barium'">Exposure to barium in high concentrations
+                        can cause muscle weakness, changes in heart rhythm, and gastrointestinal problems.</p>
+                    <p x-show="data.highestLowest.highest.name === 'cadmium'">Cadmium exposure can lead to kidney
+                        damage, bone fragility, and respiratory issues.</p>
+                    <p x-show="data.highestLowest.highest.name === 'chloramine'">Chloramine can cause skin, eye, and
+                        respiratory irritation, especially in sensitive individuals.</p>
+                    <p x-show="data.highestLowest.highest.name === 'chromium'">Hexavalent chromium exposure can lead to
+                        lung cancer, respiratory issues, and skin ulcers.</p>
+                    <p x-show="data.highestLowest.highest.name === 'copper'">Excessive copper intake can cause stomach
+                        pain, nausea, vomiting, and, in severe cases, liver or kidney damage.</p>
+                    <p x-show="data.highestLowest.highest.name === 'fluoride'">Overexposure to fluoride can lead to
+                        dental fluorosis in children and skeletal fluorosis in adults.</p>
+                    <p x-show="data.highestLowest.highest.name === 'bacteria'">Harmful bacteria in water can cause
+                        gastrointestinal issues, infections, and severe illness, particularly in immunocompromised
+                        individuals.</p>
+                    <p x-show="data.highestLowest.highest.name === 'viruses'">Viruses in water can cause diseases such
+                        as hepatitis, gastroenteritis, and other severe illnesses.</p>
+                    <p x-show="data.highestLowest.highest.name === 'lead'">Lead poisoning can cause developmental delays
+                        in children, kidney damage, and high blood pressure in adults.</p>
+                    <p x-show="data.highestLowest.highest.name === 'nitrates'">High nitrate levels can cause
+                        methemoglobinemia, or blue baby syndrome, which affects oxygen levels in the blood.</p>
+                    <p x-show="data.highestLowest.highest.name === 'nitrites'">Similar to nitrates, nitrites can cause
+                        oxygen deprivation in the blood, leading to serious health issues.</p>
+                    <p x-show="data.highestLowest.highest.name === 'mercury'">Mercury poisoning can result in tremors,
+                        emotional instability, insomnia, and memory issues. Chronic exposure can severely damage the
+                        nervous system and kidneys.</p>
+                    <p x-show="data.highestLowest.highest.name === 'perchlorate'">Perchlorate can interfere with thyroid
+                        function, leading to hormonal imbalances and developmental issues in children.</p>
+                    <p x-show="data.highestLowest.highest.name === 'radium'">Radium exposure increases the risk of bone
+                        cancer and other cancers due to its radioactive properties.</p>
+                    <p x-show="data.highestLowest.highest.name === 'selenium'">Too much selenium can cause nausea,
+                        diarrhea, skin rashes, and neurological symptoms.</p>
+                    <p x-show="data.highestLowest.highest.name === 'silver'">Excessive silver intake can lead to a
+                        condition called argyria, where the skin turns blue-gray due to silver buildup in tissues.</p>
+                    <p x-show="data.highestLowest.highest.name === 'uranium'">Can cause neurological issues, bone
+                        disease, and can affect the kidneys.</p>
+
+                </div>
+                <div class="grid-item">
+                    <strong>How to Fix Contaminant Levels:</strong>
+                    <p x-show="data.highestLowest.highest.name === 'aluminium'">Reverse osmosis, coagulation, and
+                        sedimentation.</p>
+                    <p x-show="data.highestLowest.highest.name === 'ammonia'">Chlorination, aeration, and biofiltration.
+                    </p>
+                    <p x-show="data.highestLowest.highest.name === 'arsenic'">Filtration, reverse osmosis, and ion
+                        exchange.</p>
+                    <p x-show="data.highestLowest.highest.name === 'barium'">Ion exchange and reverse osmosis.</p>
+                    <p x-show="data.highestLowest.highest.name === 'cadmium'">Ion exchange, reverse osmosis, and
+                        chemical precipitation.</p>
+                    <p x-show="data.highestLowest.highest.name === 'chloramine'">Activated carbon filtration and UV
+                        disinfection.</p>
+                    <p x-show="data.highestLowest.highest.name === 'chromium'">Chemical precipitation, ion exchange, and
+                        reverse osmosis.</p>
+                    <p x-show="data.highestLowest.highest.name === 'copper'">Corrosion control, filtration, and reverse
+                        osmosis.</p>
+                    <p x-show="data.highestLowest.highest.name === 'fluoride'">Activated alumina and reverse osmosis.
+                    </p>
+                    <p x-show="data.highestLowest.highest.name === 'bacteria'">Boiling, UV treatment, and chlorination.
+                    </p>
+                    <p x-show="data.highestLowest.highest.name === 'viruses'">Boiling, UV treatment, and chlorination.
+                    </p>
+                    <p x-show="data.highestLowest.highest.name === 'lead'">Pipe replacement, water filters, and
+                        corrosion control.</p>
+                    <p x-show="data.highestLowest.highest.name === 'nitrates'">Ion exchange and reverse osmosis.</p>
+                    <p x-show="data.highestLowest.highest.name === 'nitrites'">Ion exchange and reverse osmosis.</p>
+                    <p x-show="data.highestLowest.highest.name === 'mercury'">Chemical precipitation, filtration, and
+                        reverse osmosis.</p>
+                    <p x-show="data.highestLowest.highest.name === 'perchlorate'">Ion exchange and reverse osmosis.</p>
+                    <p x-show="data.highestLowest.highest.name === 'radium'">Ion exchange and reverse osmosis.</p>
+                    <p x-show="data.highestLowest.highest.name === 'selenium'">Ion exchange and filtration.</p>
+                    <p x-show="data.highestLowest.highest.name === 'silver'">Filtration and ion exchange.</p>
+                    <p x-show="data.highestLowest.highest.name === 'uranium'">Reverse osmosis and ion exchange.</p>
                 </div>
             </div>
-
         </div>
-        <!-- New Container for Line Graph -->
-        <div class="line-chart-container">
-            <h2>Sample Data ID: <span x-text="data.samples[data.samples.length - 1]?.id"></span></h2>
-            <div class="contaminant-key">
-                <h3>Key:</h3>
-                <div>
-                    <span style="color: green;">● Safe</span>
-                    <span style="color: red;">● Unsafe</span>
-                </div>
+        <div>
+         
+            <div>
+                <strong>Line Chart</strong>
+                <p>
+                    The line chart visually represents the levels of different contaminants in the water.
+                <ul>
+                    <span style="color: green;">● Safe</span>: Indicates contaminant levels within safe limits.
+                    <span style="color: red;">● Unsafe</span>: Highlights when contaminant levels exceed safety
+                        thresholds.
+                </ul>
+                By observing the chart, you can easily identify trends over time, compare multiple contaminants,
+                and spot periods of high risk when unsafe levels are detected. This visualization aids in making
+                quick and informed decisions regarding water quality.
+                </p>
             </div>
-            <canvas id="lineChart" width="600" height="400"></canvas>
-
         </div>
+
+        <div x-data="{ showGraph: false }">
+            <!-- Button to toggle graph visibility -->
+            <button @click="showGraph = !showGraph" class="show-graph-btn">
+                Show Line Graph
+            </button>
+
+            <!-- Line Graph Container -->
+            <div class="line-chart-container" x-show="showGraph" style="display: none;">
+                <div class="contaminant-key">
+                    <h3>Key:</h3>
+                    <div>
+                        <span style="color: rgb(4, 134, 4);">● Safe</span>
+                        <span style="color: red;">● Unsafe</span>
+                    </div>
+                </div>
+                <canvas id="lineChart" width="600" height="400"></canvas>
+            </div>
+        </div>
+
     </main>
 
 

@@ -2,53 +2,25 @@ function waterQualityApp() {
     return {
         data: {
             samples: [],
-            newSample: {
-                aluminium: null,
-                ammonia: null,
-                arsenic: null,
-                barium: null,
-                cadmium: null,
-                chloramine: null,
-                chromium: null,
-                copper: null,
-                fluoride: null,
-                bacteria: null,
-                viruses: null,
-                lead: null,
-                nitrates: null,
-                nitrites: null,
-                mercury: null,
-                perchlorate: null,
-                radium: null,
-                selenium: null,
-                silver: null,
-                uranium: null
-            },
             chartData: null,
             highestLowest: null, // To store highest and lowest contaminants
             contaminants: [], // To store safe and unsafe contaminants
             selectedSample: null, // To store selected sample for editing
-            isEditing: false // To track if currently editingz
-
+            isEditing: false, // To track if currently editing
+            sideEffects: {
+                sideEffects: "",
+                remedy: ""
+            },
         },
         showHistory: false, // To control the visibility of the history popup
         chart: null,
         lineChart: null,
-        isModalOpen: false,
-        alerts: [],
-        socket: null,
 
         init() {
             this.showHistory = false;
             this.fetchData();
-            this.setupSocket();
         },
-        setupSocket() {
-            const socket = io(); // Connect to Socket.IO
-            socket.on('alert', (message) => {
-                alert(message); // Display the alert message from the server
-            });
-        },
+
         async fetchData() {
             const response = await fetch('/api/samples');
             const samples = await response.json();
@@ -57,75 +29,14 @@ function waterQualityApp() {
             this.calculateHighestLowest();
             this.prepareContaminantsData();
             this.renderLineChart();
-        },
-       
-        async downloadCSV() {
-            try {
-                const response = await fetch('/api/samples');
-                const data = await response.json();
-                const csv = this.convertToCSV(data);
-                this.downloadFile(csv, 'water_quality_samples.csv');
-            } catch (error) {
-                console.error('Error downloading CSV:', error);
+            this.getSideEffects();
+            if (!response.ok) {
+                console.error("Failed to fetch samples:", response.statusText);
+                return;
             }
-        },
-        convertToCSV(data) {
-            if (data.length === 0) return '';
-
-            const headers = Object.keys(data[0]);
-            const rows = data.map(sample => headers.map(header => sample[header]));
-
-            const csvContent = [
-                headers.join(','), // Header row
-                ...rows.map(row => row.join(',')) // Data rows
-            ].join('\n');
-
-            return csvContent;
-        },
-        downloadFile(content, filename) {
-            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            if (link.download !== undefined) { // Feature detection
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', filename);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
+            
         },
 
-        openModal() {
-            this.isModalOpen = true;
-            this.newSample = {
-                aluminium: null,
-                ammonia: null,
-                arsenic: null,
-                barium: null,
-                cadmium: null,
-                chloramine: null,
-                chromium: null,
-                copper: null,
-                fluoride: null,
-                bacteria: null,
-                viruses: null,
-                lead: null,
-                nitrates: null,
-                nitrites: null,
-                mercury: null,
-                perchlorate: null,
-                radium: null,
-                selenium: null,
-                silver: null,
-                uranium: null,
-            };
-        },
-
-
-        closeModal() {
-            this.isModalOpen = false;
-        },
         updateChartData() {
             const latestSample = this.data.samples[this.data.samples.length - 1];
             const contaminantKeys = Object.keys(latestSample).filter(key => key !== 'id' && key !== 'is_safe');
@@ -285,9 +196,8 @@ function waterQualityApp() {
             });
         },
 
-        isSafe(value) {
-            // Use the safety thresholds to determine if the value is safe
-            const threshold = this.getSafetyThreshold(); // You may need to pass the contaminant name to this method
+        isSafe(value, contaminant) {
+            const threshold = this.getSafetyThreshold(contaminant);
             return value <= threshold;
         },
 
@@ -313,6 +223,11 @@ function waterQualityApp() {
                 this.data.isEditing = false; // Exit editing mode
                 this.data.selectedSample = null; // Clear selected sample
             }
+            if (!response.ok) {
+                console.error("Failed to fetch samples:", response.statusText);
+                return;
+            }
+            
         },
 
 
@@ -323,51 +238,123 @@ function waterQualityApp() {
             if (response.ok) {
                 this.fetchData(); // Refresh data after deletion
             }
-        },
-        async submitSample() {
-            try {
-                const response = await fetch('/api/samples', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(this.newSample),
-                });
-
-                if (response.ok) {
-                    const newSample = await response.json();
-                    this.data.samples.push(newSample);
-
-                    // Check if the new sample is safe
-                    if (!isSafe(newSample)) {
-                        this.triggerAlert(); // Trigger alert for unsafe sample
-                    }
-
-                    this.closeModal();
-                    this.fetchData(); // Refresh the samples list
-                } else {
-                    console.error('Error adding sample:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error adding sample:', error);
+            if (!response.ok) {
+                console.error("Failed to fetch samples:", response.statusText);
+                return;
             }
-        },
-        triggerAlert() {
-            if (this.socket) {
-                this.socket.emit('alert', 'Unsafe contaminant detected in the water sample!'); // Emit alert to the client
-            } else {
-                console.error('Socket connection is not established.');
-            }
-        },
-
-        isSafe(sample) {
-            const contaminantKeys = Object.keys(sample).filter(key => key !== 'id' && key !== 'is_safe');
-            return contaminantKeys.every(key => sample[key] <= this.getSafetyThreshold(key));
+            
         },
 
         cancelEdit() {
             this.data.isEditing = false; // Exit editing mode
             this.data.selectedSample = null; // Clear selected sample
+        },
+
+        getSideEffects() {
+            const highestContaminant = this.data.highestLowest.highest.name;
+            this.data.sideEffects = this.sideEffectsData[highestContaminant];
+        },
+        sideEffectsData: {
+                aluminium: {
+                    sideEffects: "Excessive aluminium can cause skin irritation and has been linked to neurological issues.",
+                    remedy: "Reverse osmosis, coagulation, and sedimentation."
+                },
+                ammonia: {
+                    sideEffects: "High levels of ammonia may irritate the skin, eyes, throat, and cause respiratory problems.",
+                    remedy: "Chlorination, aeration, and biofiltration."
+
+                },
+                arsenic: {
+                    sideEffects: "Chronic exposure to arsenic can lead to cancer, skin lesions, cardiovascular diseases, and diabetes.",
+                    remedy: "Filtration, reverse osmosis, and ion exchange."
+                },
+                barium: {
+                    sideEffects: "Exposure to barium in high concentrations can cause muscle weakness, changes in heart rhythm, and gastrointestinal problems.",
+                    remedy: "Ion exchange and reverse osmosis."
+
+                },
+                cadmium: {
+                    sideEffects: "Cadmium exposure can lead to kidney damage, bone fragility, and respiratory issues.",
+                    remedy: "Ion exchange, reverse osmosis, and chemical precipitation."
+
+                },
+                chloramine: {
+                    sideEffects: "Chloramine can cause skin, eye, and respiratory irritation, especially in sensitive individuals.",
+                    remedy: "Activated carbon filtration and UV disinfection."
+
+                },
+                chromium: {
+                    sideEffects: "Hexavalent chromium exposure can lead to lung cancer, respiratory issues, and skin ulcers.",
+                    remedy: "Chemical precipitation, ion exchange, and reverse osmosis."
+
+                },
+                copper: {
+                    sideEffects: "Excessive copper intake can cause stomach pain, nausea, vomiting, and, in severe cases, liver or kidney damage.",
+                    remedy: "Corrosion control, filtration, and reverse osmosis."
+
+                },
+                fluoride: {
+                    sideEffects: "Overexposure to fluoride can lead to dental fluorosis in children and skeletal fluorosis in adults.",
+                    remedy: "Activated alumina and reverse osmosis."
+
+                },
+                bacteria: {
+                    sideEffects: "Harmful bacteria in water can cause gastrointestinal issues, infections, and severe illness, particularly in immunocompromised individuals.",
+                    remedy: "Boiling, UV treatment, and chlorination."
+
+                },
+                viruses: {
+                    sideEffects: "Harmful bacteria in water can cause gastrointestinal issues, infections, and severe illness, particularly in immunocompromised individuals.",
+                    remedy: "Boiling, UV treatment, and chlorination."
+
+                },
+                lead: {
+                    sideEffects: "Lead poisoning can cause developmental delays in children, kidney damage, and high blood pressure in adults.",
+                    remedy: "Pipe replacement, water filters, and corrosion control."
+                },
+                nitrates: {
+                    sideEffects: "High nitrate levels can cause methemoglobinemia, or blue baby syndrome, which affects oxygen levels in the blood.",
+                    remedy: "Ion exchange and reverse osmosis."
+
+                },
+                nitrites: {
+                    sideEffects: "Similar to nitrates, nitrites can cause oxygen deprivation in the blood, leading to serious health issues.",
+                    remedy: "Ion exchange and reverse osmosis."
+
+                },
+                mercury: {
+                    sideEffects: "Mercury exposure can result in neurological damage, memory loss, and motor dysfunction.",
+                    remedy: "Chemical precipitation, filtration, and reverse osmosis."
+
+                },
+                perchlorate: {
+                    sideEffects: "Perchlorate can interfere with thyroid function, leading to hormonal imbalances and developmental issues in children.",
+                    remedy: "Ion exchange and reverse osmosis."
+
+                },
+                radium: {
+                    sideEffects: "Radium exposure increases the risk of bone cancer and other cancers due to its radioactive properties.",
+                    remedy: "Ion exchange and reverse osmosis."
+
+                },
+                selenium: {
+                    sideEffects: "Too much selenium can cause nausea, diarrhea, skin rashes, and neurological symptoms.",
+                    remedy: "Ion exchange and filtration."
+
+                },
+                silver: {
+                    sideEffects: "Excessive silver intake can lead to a condition called argyria, where the skin turns blue-gray due to silver buildup in tissues.",
+                    remedy: "Filtration and ion exchange."
+
+                }, uranium: {
+                    sideEffects: "Can cause neurological issues, bone disease, and can affect the kidneys.",
+                    remedy: "Reverse osmosis and ion exchange."
+
+                }
+            },
         }
+
     };
 }
+
+

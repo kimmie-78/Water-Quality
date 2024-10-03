@@ -2,11 +2,17 @@ import express from 'express';
 import * as sqlite from 'sqlite';
 import sqlite3 from 'sqlite3';
 import cors from 'cors';
+import { Server } from 'socket.io';
+import http from 'http';
 import {isSafe, replaceNullWithZero} from './is_safe.js';
+import { io } from "socket.io-client";
 
 
 
 const app = express();
+const server = http.createServer(app); 
+// const io = new Server(server);
+const PORT = process.env.PORT || 4000;
 app.use(cors());
 
 app.use(express.static('public'));
@@ -19,7 +25,21 @@ const db = await sqlite.open({
 
 await db.migrate();
 
+// Listening for socket connections
+// io.on('connection', (socket) => {
+//     console.log('A user connected');
 
+//     // Listening for the alert event
+//     socket.on('alert', (data) => {
+//         console.log(data); // This will log the alert message
+//         // Handle the alert as needed
+//     });
+
+//     // Disconnect event
+//     socket.on('disconnect', () => {
+//         console.log('User disconnected');
+//     });
+// });
 // Create a new water sample
 app.post('/api/samples', async(req, res) => {
     const sample = req.body;
@@ -38,9 +58,19 @@ app.post('/api/samples', async(req, res) => {
         sample.is_safe
     ];
     
+    
     try {
         const result = await db.run(query, params);
         const id = result.lastID;
+
+        // Emit a real-time alert if the sample is unsafe
+        if (!sample.is_safe) {
+            io.emit('alert', {
+                message: 'Unsafe water sample detected!',
+                contaminants: getUnsafeContaminants(sample) // Helper function to find unsafe contaminants
+            });
+        }
+
         res.status(201).json({ id, ...sample });
     } catch (err) {
         return res.status(500).json({ error: err.message });
@@ -122,9 +152,24 @@ app.delete('/api/samples/:id', async (req, res) => {
         return res.status(500).json({ error: err.message });
     }
 });
+// const socket = io('http://localhost:4000');
+// Listen for alerts
+// socket.on('alert', (data) => {
+//     console.log(data.message); // Display the alert message
+//     console.log('Unsafe contaminants:', data.contaminants); // Display the unsafe contaminants
+// });
 
 
+// Start the server
+server.listen(PORT, () => console.log(`Server started ${PORT}`));
 
-
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server started ${PORT}`));
+function getUnsafeContaminants(sample) {
+    const unsafe = [];
+    for (const key in sample) {
+        if (sample[key] === null) continue;
+        if (!isSafe({ ...sample, [key]: sample[key] })) {
+            unsafe.push(key);
+        }
+    }
+    return unsafe;
+}
