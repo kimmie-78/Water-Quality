@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body x-data="waterQualityApp">
+<body x-data="waterQualityApp" x-init="initSocket()">
 
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -34,8 +34,8 @@ c-22.4,3-38.4,9.2-47.8,18.3c-11.2,10.9-13.6,26.7-16.3,45c-3.1,20.8-6.6,44.4-25.3
                 <h2>Water Quality Dashboard</h2>
                
                 <ul>
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">Forum</a></li>
+                    <li><a href="alert.html">Home</a></li>
+                    <li><a href="indemx.html">Forum</a></li>
                     <li><a href="#"><button @click="showHistory = true" class="show-history-button">Show
                                 History</button></a></li>
                     <li><a href="#"> <button @click="openModal()" class="add-sample-btn">Add New Sample</button></a></li>
@@ -66,14 +66,11 @@ c-22.4,3-38.4,9.2-47.8,18.3c-11.2,10.9-13.6,26.7-16.3,45c-3.1,20.8-6.6,44.4-25.3
         <!-- <a href="#"><i class="fa-solid fa-user"></i></a> -->
         <h2 class="fancy-title-2">Sample Data ID: <span x-text="data.samples[data.samples.length - 1]?.id"></span></h2>
         
-    <div id="alerts" x-show="alerts.length > 0">
-        <template x-for="alert in alerts" :key="alert.message">
-            <div class="alert" style="background: red; color: white; margin: 10px; padding: 10px;">
-                <p x-text="alert.message"></p>
-                <p x-text="'Unsafe Contaminants: ' + alert.contaminants.join(', ')"></p>
-            </div>
-        </template>
-    </div>
+
+        <!-- Container for alerts -->
+        <div id="alert-container" class="alert-box" >
+            <strong x-text="alertMessage"></strong>
+        </div>
 
         <!-- Grid for Highest and Lowest Contaminants -->
         <div x-show="data.highestLowest" class="contaminant-grid">
@@ -97,68 +94,70 @@ c-22.4,3-38.4,9.2-47.8,18.3c-11.2,10.9-13.6,26.7-16.3,45c-3.1,20.8-6.6,44.4-25.3
             <h2>Add New Water Sample</h2>
             <form @submit.prevent="submitSample">
                 <label for="aluminium">Aluminium:</label>
-                <input type="number" id="aluminium" v-model="newSample.aluminium" required>
+                <input type="number" id="aluminium" x-model="newSample.aluminium"step="0.000001" required>
                 
                 <label for="ammonia">Ammonia:</label>
-                <input type="number" id="ammonia" v-model="newSample.ammonia" required>
+                <input type="number" id="ammonia" x-model="newSample.ammonia" step="0.000001" required>
                 
                 <label for="arsenic">Arsenic:</label>
-                <input type="number" id="arsenic" v-model="newSample.arsenic" required>
+                <input type="number" id="arsenic" x-model="newSample.arsenic" step="0.000001" required>
                 
                 <label for="barium">Barium:</label>
-                <input type="number" id="barium" v-model="newSample.barium" required>
+                <input type="number" id="barium" x-model="newSample.barium" step="0.000001" required>
                 
                 <label for="cadmium">Cadmium:</label>
-                <input type="number" id="cadmium" v-model="newSample.cadmium" required>
+                <input type="number" id="cadmium" x-model="newSample.cadmium" step="0.000001" required>
                 
                 <label for="chloramine">Chloramine:</label>
-                <input type="number" id="chloramine" v-model="newSample.chloramine" required>
+                <input type="number" id="chloramine" x-model="newSample.chloramine" step="0.000001" required>
                 
                 <label for="chromium">Chromium:</label>
-                <input type="number" id="chromium" v-model="newSample.chromium" required>
+                <input type="number" id="chromium" x-model="newSample.chromium" step="0.000001" required>
                 
                 <label for="copper">Copper:</label>
-                <input type="number" id="copper" v-model="newSample.copper" required>
+                <input type="number" id="copper" x-model="newSample.copper" step="0.000001" required>
                 
                 <label for="fluoride">Fluoride:</label>
-                <input type="number" id="fluoride" v-model="newSample.fluoride" required>
+                <input type="number" id="fluoride" x-model="newSample.fluoride" step="0.000001" required>
                 
                 <label for="bacteria">Bacteria:</label>
-                <input type="number" id="bacteria" v-model="newSample.bacteria" required>
+                <input type="number" id="bacteria" x-model="newSample.bacteria" step="0.000001" required>
                 
                 <label for="viruses">Viruses:</label>
-                <input type="number" id="viruses" v-model="newSample.viruses" required>
+                <input type="number" id="viruses" x-model="newSample.viruses" step="0.000001" required>
                 
                 <label for="lead">Lead:</label>
-                <input type="number" id="lead" v-model="newSample.lead" required>
+                <input type="number" id="lead" x-model="newSample.lead"  step="0.000001" required>
                 
                 <label for="nitrates">Nitrates:</label>
-                <input type="number" id="nitrates" v-model="newSample.nitrates" required>
+                <input type="number" id="nitrates" x-model="newSample.nitrates" step="0.000001" required>
                 
                 <label for="nitrites">Nitrites:</label>
-                <input type="number" id="nitrites" v-model="newSample.nitrites" required>
+                <input type="number" id="nitrites" x-model="newSample.nitrites" step="0.000001" required>
                 
                 <label for="mercury">Mercury:</label>
-                <input type="number" id="mercury" v-model="newSample.mercury" required>
+                <input type="number" id="mercury" x-model="newSample.mercury" step="0.000001" required>
                 
                 <label for="perchlorate">Perchlorate:</label>
-                <input type="number" id="perchlorate" v-model="newSample.perchlorate" required>
+                <input type="number" id="perchlorate" x-model="newSample.perchlorate" step="0.000001" required>
                 
                 <label for="radium">Radium:</label>
-                <input type="number" id="radium" v-model="newSample.radium" required>
+                <input type="number" id="radium" x-model="newSample.radium"  step="0.000001" required>
                 
                 <label for="selenium">Selenium:</label>
-                <input type="number" id="selenium" v-model="newSample.selenium" required>
+                <input type="number" id="selenium" x-model="newSample.selenium" step="0.000001" required>
                 
                 <label for="silver">Silver:</label>
-                <input type="number" id="silver" v-model="newSample.silver" required>
+                <input type="number" id="silver" x-model="newSample.silver" step="0.000001" required>
                 
                 <label for="uranium">Uranium:</label>
-                <input type="number" id="uranium" v-model="newSample.uranium" required>
+                <input type="number" id="uranium" x-model="newSample.uranium" step="0.000001" required>
                 
                 <button type="submit">Submit</button>
                 <button type="button" @click="closeModal()">Cancel</button>
+                
             </form>
+            <div x-text="JSON.stringify(newSample)"></div>
         </div>
     </div>
         

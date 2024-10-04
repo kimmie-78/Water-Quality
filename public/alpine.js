@@ -1,6 +1,7 @@
 function waterQualityApp() {
     return {
         data: {
+            
             samples: [],
             newSample: {
                 aluminium: null,
@@ -35,7 +36,8 @@ function waterQualityApp() {
         chart: null,
         lineChart: null,
         isModalOpen: false,
-        alerts: [],
+        alertVisible: false,
+        alertMessage: '',
         socket: null,
 
         init() {
@@ -43,10 +45,18 @@ function waterQualityApp() {
             this.fetchData();
             this.setupSocket();
         },
-        setupSocket() {
-            const socket = io(); // Connect to Socket.IO
-            socket.on('alert', (message) => {
-                alert(message); // Display the alert message from the server
+        initSocket() {
+            this.socket = io(); // Connect to the server via Socket.io
+
+            this.socket.on('alert', (message) => {
+                // Show the alert when receiving the alert event
+                this.alertMessage = message;
+                this.alertVisible = true;
+
+                // Hide the alert after 5 seconds
+                setTimeout(() => {
+                    this.alertVisible = false;
+                }, 15000);
             });
         },
         async fetchData() {
@@ -338,25 +348,11 @@ function waterQualityApp() {
                     const newSample = await response.json();
                     this.data.samples.push(newSample);
 
-                    // Check if the new sample is safe
-                    if (!isSafe(newSample)) {
-                        this.triggerAlert(); // Trigger alert for unsafe sample
-                    }
-
-                    this.closeModal();
-                    this.fetchData(); // Refresh the samples list
                 } else {
                     console.error('Error adding sample:', response.statusText);
                 }
             } catch (error) {
                 console.error('Error adding sample:', error);
-            }
-        },
-        triggerAlert() {
-            if (this.socket) {
-                this.socket.emit('alert', 'Unsafe contaminant detected in the water sample!'); // Emit alert to the client
-            } else {
-                console.error('Socket connection is not established.');
             }
         },
 
