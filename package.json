@@ -20,7 +20,8 @@
   "contributors": [],
   "scripts": {
     "dev": "",
-    "test": ""
+    "test": "",
+    "start": "node express.js"
   },
   "dependencies": {
     "alpinejs": "^3.14.1",
