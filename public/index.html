@@ -2,354 +2,373 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Water Quality Dashboard</title>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>WQ</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
 
-    <link rel="stylesheet" href="styles.css">
+  <!-- Favicons -->
+ 
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="assets/css/main.css" rel="stylesheet">
+
+  <!-- =======================================================
+  * Template Name: Siimple
+  * Template URL: https://bootstrapmade.com/free-bootstrap-landing-page/
+  * Updated: Aug 07 2024 with Bootstrap v5.3.3
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
 </head>
 
-<body x-data="waterQualityApp" x-init="initSocket()">
+<body class="index-page">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
+  <header id="header" class="header d-flex align-items-center fixed-top">
+    <div class="container-fluid position-relative d-flex align-items-center justify-content-between">
 
-        <div class="header">
+      <a href="index.html" class="logo d-flex align-items-center">
+        <!-- Uncomment the line below if you also wish to use an image logo -->
+        <!-- <img src="assets/img/logo.png" alt=""> -->
+        <div class="logo">
+          <img src="logo1.png" alt="Company Logo">
+          <div class="company-name">Water Quality</div>
+      </div>
+      </a>
 
-            <!--Content before waves-->
-            <div class="inner-header flex">
-                <path fill="#FFFFFF" stroke="#000000" stroke-width="10" stroke-miterlimit="10" d="M57,283" />
-                <g>
-                    <path fill="#fff"
-                        d="M250.4,0.8C112.7,0.8,1,112.4,1,250.2c0,137.7,111.7,249.4,249.4,249.4c137.7,0,249.4-111.7,249.4-249.4
-C499.8,112.4,388.1,0.8,250.4,0.8z M383.8,326.3c-62,0-101.4-14.1-117.6-46.3c-17.1-34.1-2.3-75.4,13.2-104.1
-c-22.4,3-38.4,9.2-47.8,18.3c-11.2,10.9-13.6,26.7-16.3,45c-3.1,20.8-6.6,44.4-25.3,62.4c-19.8,19.1-51.6,26.9-100.2,24.6l1.8-39.7		c35.9,1.6,59.7-2.9,70.8-13.6c8.9-8.6,11.1-22.9,13.5-39.6c6.3-42,14.8-99.4,141.4-99.4h41L333,166c-12.6,16-45.4,68.2-31.2,96.2	c9.2,18.3,41.5,25.6,91.2,24.2l1.1,39.8C390.5,326.2,387.1,326.3,383.8,326.3z" />
-                </g>
-                </svg>
-                <h2>Water Quality Dashboard</h2>
-               
-                <ul>
-                    <li><a href="alert.html">Home</a></li>
-                    <li><a href="indemx.html">Forum</a></li>
-                    <li><a href="#"><button @click="showHistory = true" class="show-history-button">Show
-                                History</button></a></li>
-                    <li><a href="#"> <button @click="openModal()" class="add-sample-btn">Add New Sample</button></a></li>
-                    <li><a href="#"> <button @click="downloadCSV" class="show-history-button">Download All Data as CSV</button></a></li>
-                </ul>
-            </div>
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="#hero" class="active">Home</a></li>
+          <li><a href="#why-us">About</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="indexf.html">Forum</a></li>
+          <li><a href="#">Login</a></li>
+          <li><a href="#">SignUp</a></li>
 
-            <!--Waves Container-->
-            <div>
-                <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                    viewBox="0 24 190 28" preserveAspectRatio="none" shape-rendering="auto">
-                    <defs>
-                        <path id="gentle-wave"
-                            d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
-                    </defs>
-                    <g class="parallax">
-                        <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7" />
-                        <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
-                        <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(255,255,255,0.3)" />
-                        <use xlink:href="#gentle-wave" x="48" y="7" fill="#fff" />
-                    </g>
-                </svg>
-            </div>
-    </aside>
-    <!-- Main Content -->
-    <main class="content">
-        <h1 class="fancy-title">Water Quality Overview   <a href="#"><i class="fa-solid fa-user"></i></a></h1>
-        <!-- <a href="#"><i class="fa-solid fa-user"></i></a> -->
-        <h2 class="fancy-title-2">Sample Data ID: <span x-text="data.samples[data.samples.length - 1]?.id"></span></h2>
-        
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
 
-        <!-- Container for alerts -->
-        <div id="alert-container" class="alert-box" >
-            <strong x-text="alertMessage"></strong>
-        </div>
-
-        <!-- Grid for Highest and Lowest Contaminants -->
-        <div x-show="data.highestLowest" class="contaminant-grid">
-            <div class="grid-container">
-                <div class="grid-item">
-                    <strong>Highest Contaminant:</strong>
-                    <span x-text="data.highestLowest.highest.name"></span>
-                    <span x-text="data.highestLowest.highest.value"></span>
-                </div>
-                <div class="grid-item">
-                    <strong>Lowest Contaminant:</strong>
-                    <span x-text="data.highestLowest.lowest.name"></span>
-                    <span x-text="data.highestLowest.lowest.value"></span>
-                </div>
-                
-            </div>
-        </div>
-       <!-- Modal Container -->
-    <div x-show="isModalOpen" @click.away="closeModal()" class="modal-container">
-        <div class="modal-content">
-            <h2>Add New Water Sample</h2>
-            <form @submit.prevent="submitSample">
-                <label for="aluminium">Aluminium:</label>
-                <input type="number" id="aluminium" x-model="newSample.aluminium"step="0.000001" required>
-                
-                <label for="ammonia">Ammonia:</label>
-                <input type="number" id="ammonia" x-model="newSample.ammonia" step="0.000001" required>
-                
-                <label for="arsenic">Arsenic:</label>
-                <input type="number" id="arsenic" x-model="newSample.arsenic" step="0.000001" required>
-                
-                <label for="barium">Barium:</label>
-                <input type="number" id="barium" x-model="newSample.barium" step="0.000001" required>
-                
-                <label for="cadmium">Cadmium:</label>
-                <input type="number" id="cadmium" x-model="newSample.cadmium" step="0.000001" required>
-                
-                <label for="chloramine">Chloramine:</label>
-                <input type="number" id="chloramine" x-model="newSample.chloramine" step="0.000001" required>
-                
-                <label for="chromium">Chromium:</label>
-                <input type="number" id="chromium" x-model="newSample.chromium" step="0.000001" required>
-                
-                <label for="copper">Copper:</label>
-                <input type="number" id="copper" x-model="newSample.copper" step="0.000001" required>
-                
-                <label for="fluoride">Fluoride:</label>
-                <input type="number" id="fluoride" x-model="newSample.fluoride" step="0.000001" required>
-                
-                <label for="bacteria">Bacteria:</label>
-                <input type="number" id="bacteria" x-model="newSample.bacteria" step="0.000001" required>
-                
-                <label for="viruses">Viruses:</label>
-                <input type="number" id="viruses" x-model="newSample.viruses" step="0.000001" required>
-                
-                <label for="lead">Lead:</label>
-                <input type="number" id="lead" x-model="newSample.lead"  step="0.000001" required>
-                
-                <label for="nitrates">Nitrates:</label>
-                <input type="number" id="nitrates" x-model="newSample.nitrates" step="0.000001" required>
-                
-                <label for="nitrites">Nitrites:</label>
-                <input type="number" id="nitrites" x-model="newSample.nitrites" step="0.000001" required>
-                
-                <label for="mercury">Mercury:</label>
-                <input type="number" id="mercury" x-model="newSample.mercury" step="0.000001" required>
-                
-                <label for="perchlorate">Perchlorate:</label>
-                <input type="number" id="perchlorate" x-model="newSample.perchlorate" step="0.000001" required>
-                
-                <label for="radium">Radium:</label>
-                <input type="number" id="radium" x-model="newSample.radium"  step="0.000001" required>
-                
-                <label for="selenium">Selenium:</label>
-                <input type="number" id="selenium" x-model="newSample.selenium" step="0.000001" required>
-                
-                <label for="silver">Silver:</label>
-                <input type="number" id="silver" x-model="newSample.silver" step="0.000001" required>
-                
-                <label for="uranium">Uranium:</label>
-                <input type="number" id="uranium" x-model="newSample.uranium" step="0.000001" required>
-                
-                <button type="submit">Submit</button>
-                <button type="button" @click="closeModal()">Cancel</button>
-                
-            </form>
-            <div x-text="JSON.stringify(newSample)"></div>
-        </div>
     </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero section">
+
+      <img src="assets/img/waterfall.jpg" alt="" data-aos="fade-in" class="">
+
+      <div class="container text-center" data-aos="fade-up" data-aos-delay="100">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h2>Water Quality</h2>
+            <p>Clean Water Starts with Knowledge</p>
+            <a href="#about" class="btn-get-started">Get Started</a>
+          </div>
+        </div>
+      </div>
+
+    </section><!-- /Hero Section -->
+
+    <!-- Why Us Section -->
+    <section id="why-us" class="why-us section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>About Us</h2>
+        <p>At WaterQuality, we are dedicated to providing professionals with accurate and comprehensive data on water
+          contamination. Our web app is designed to be an essential resource for experts in the field, offering precise
+          information, advanced analytical tools, and a collaborative forum for discussion.</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row gy-4" data-aos="fade-up" data-aos-delay="100">
+
+          <div class="col-md-4">
+            <div class="card">
+              <div class="img">
+                <img src="assets/img/sky.jpg" alt="" class="img-fluid">
+                <div class="icon"><i class="bi bi-hdd-stack"></i></div>
+              </div>
+              <h2 class="title"><a href="#" class="stretched-link">Our Mission</a></h2>
+              <p>
+                Our mission is to enhance water safety and quality through accurate data and professional collaboration.
+                We aim to empower environmental scientists, water quality experts, and public health professionals with
+                the tools and knowledge they need to address water contamination effectively and efficiently</p>
+            </div>
+          </div><!-- End Card Item -->
+
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card">
+              <div class="img">
+                <img src="assets/img/town.jpg" alt="" class="img-fluid">
+                <div class="icon"><i class="bi bi-brightness-high"></i></div>
+              </div>
+              <h2 class="title"><a href="#" class="stretched-link">Our Value</a></h2>
+              <p>
+                At WaterQuality, we are committed to delivering value in every aspect of our platform, empowering
+                professionals to make informed decisions, collaborate effectively, and contribute to safer water systems
+                globally. </p>
+            </div>
+          </div><!-- End Card Item -->
+
+          <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+            <div class="card">
+              <div class="img">
+                <img src="assets/img/tree.jpg" alt="" class="img-fluid">
+                <div class="icon"><i class="bi bi-calendar4-week"></i></div>
+              </div>
+              <h2 class="title"><a href="#" class="stretched-link">Our Vision</a></h2>
+              <p>
+                At WaterQuality, our vision is to create a world where clean, safe water is accessible to everyone. We
+                aspire to be the leading platform for professionals dedicated to ensuring water quality and safety
+                through data-driven insights, innovation, and collaboration. </p>
+            </div>
+          </div><!-- End Card Item -->
+
+        </div>
+
+      </div>
+
+    </section><!-- /Why Us Section -->
+
+    <!-- Services Section -->
+    <section id="services" class="services section light-background">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Services</h2>
+        <p>Whether you’re looking to enhance your research, collaborate with peers, or stay updated on water quality
+          issues, WaterWise Pro is here to support you. Join our community of dedicated professionals and contribute to
+          a future with safer, cleaner water.</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row gy-4">
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-item  position-relative">
+              <div class="icon">
+                <i class="bi bi-activity"></i>
+              </div>
+          
+                <h3>Data Integrity</h3>
+              </a>
+              <p>We ensure the highest standards of data accuracy and reliability. By sourcing data from verified
+                databases and using real-time monitoring systems, we give you the tools to trust your insights and take
+                precise action.</p>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-broadcast"></i>
+              </div>
         
-
-        <!-- History Popup -->
-        <div x-show="showHistory" class="popup">
-            <div class="popup-content">
-                <h2>Sample Data</h2>
-                <button @click="showHistory = false" style="background-color: #008CBA;">Close</button>
-                <div class="scrollable-data">
-                    <template x-for="sample in data.samples" :key="sample.id">
-                        <div class="sample-entry">
-                            <p>ID: <span x-text="sample.id"></span></p>
-                            <p>Aluminium: <span x-text="sample.aluminium"></span></p>
-                            <p>Ammonia: <span x-text="sample.ammonia"></span></p>
-                            <p>Arsenic: <span x-text="sample.arsenic"></span></p>
-                            <p>Barium: <span x-text="sample.barium"></span></p>
-                            <p>Cadmium: <span x-text="sample.cadmium"></span></p>
-                            <p>Chloramine: <span x-text="sample.chloramine"></span></p>
-                            <p>Chromium: <span x-text="sample.chromium"></span></p>
-                            <p>Copper: <span x-text="sample.copper"></span></p>
-                            <p>Fluoride: <span x-text="sample.fluoride"></span></p>
-                            <p>Bacteria: <span x-text="sample.bacteria"></span></p>
-                            <p>Viruses: <span x-text="sample.viruses"></span></p>
-                            <p>Lead: <span x-text="sample.lead"></span></p>
-                            <p>Nitrates: <span x-text="sample.nitrates"></span></p>
-                            <p>Nitrites: <span x-text="sample.nitrites"></span></p>
-                            <p>Mercury: <span x-text="sample.mercury"></span></p>
-                            <p>Perchlorate: <span x-text="sample.perchlorate"></span></p>
-                            <p>Radium: <span x-text="sample.radium"></span></p>
-                            <p>Selenium: <span x-text="sample.selenium"></span></p>
-                            <p>Silver: <span x-text="sample.silver"></span></p>
-                            <p>Uranium: <span x-text="sample.uranium"></span></p>
-
-
-                            <button @click="editSample(sample)" class="edit-button"
-                                style="background-color: green;">Update</button>
-                            <button @click="deleteSample(sample.id) " style="background-color: red;">Delete</button>
-                        </div>
-                    </template>
-                </div>
+                <h3>Professional Collaboration</h3>
+              </a>
+              <p>Our platform fosters a collaborative environment where professionals can engage with one another,
+                exchange expertise, and develop innovative solutions to complex water contamination challenges.</p>
             </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-easel"></i>
+              </div>
+
+              <h3>Empowering Research and Action</h3>
+              </a>
+              <p>We provide professionals with the cutting-edge tools and data analysis resources necessary to drive
+                impactful research and actionable insights. From tracking contamination levels to understanding trends,
+                our platform enables you to lead with confidence.</p>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-bounding-box-circles"></i>
+              </div>
+
+              <h3>Commitment to Excellence</h3>
+              </a>
+              <p>We are dedicated to continuously improving our platform to meet the evolving needs of water quality and
+                environmental professionals. Our commitment to innovation ensures that you always have the best
+                resources to address the challenges you face.</p>
+
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-calendar4-week"></i>
+              </div>
+
+              <h3>Positive Environmental Impact</h3>
+              </a>
+              <p>By supporting professionals in water management and contamination control, we contribute to creating
+                healthier communities, preserving ecosystems, and ensuring that clean water is accessible for all.</p>
+
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-chat-square-text"></i>
+              </div>
+
+              <h3>Comprehensive Tools</h3>
+              </a>
+              <p>From real-time contamination monitoring to advanced data visualization, we offer a range of professional tools designed to help you analyze water quality and contamination trends with ease. These features will streamline your research and reporting efforts.</p>
+
+            </div>
+          </div><!-- End Service Item -->
+
         </div>
 
-        <!-- Edit Popup -->
-        <div x-show="editSampleData" class="popup">
-            <div class="popup-content">
-                <h2>Edit Sample Data</h2>
-                <button @click="editSampleData = false">Back</button>
-                <div>
-                    <label for="editAluminium">Aluminium:</label>
-                    <input type="text" id="editAluminium" x-model="sampleToEdit.aluminium">
-                    <!-- Repeat for all contaminants -->
-                    <button @click="updateSample(sampleToEdit.id)">Edit</button>
-                </div>
-            </div>
-        </div>
-        <div class="flex-container">
-            <canvas id="waterChart"></canvas>
+      </div>
 
-            <div class="explanation-section">
-                <h2 class="fancy-title-2">Contaminant Information</h2>
-                <div class="grid-item">
-                    <strong>Highest Contaminant:</strong>
-                    <span x-text="data.highestLowest.highest.name"></span>
-                    <span x-text="data.highestLowest.highest.value"></span>
-                </div>
-                <div class="grid-item">
-                    <strong>Side Effects of Contaminant:</strong>
-                    <p x-show="data.highestLowest.highest.name === 'aluminium'">Excessive aluminium can cause skin
-                        irritation and has been linked to neurological issues.</p>
-                    <p x-show="data.highestLowest.highest.name === 'ammonia'">High levels of ammonia may irritate the
-                        skin, eyes, throat, and cause respiratory problems.</p>
-                    <p x-show="data.highestLowest.highest.name === 'arsenic'">Chronic exposure to arsenic can lead to
-                        cancer, skin lesions, cardiovascular diseases, and diabetes.</p>
-                    <p x-show="data.highestLowest.highest.name === 'barium'">Exposure to barium in high concentrations
-                        can cause muscle weakness, changes in heart rhythm, and gastrointestinal problems.</p>
-                    <p x-show="data.highestLowest.highest.name === 'cadmium'">Cadmium exposure can lead to kidney
-                        damage, bone fragility, and respiratory issues.</p>
-                    <p x-show="data.highestLowest.highest.name === 'chloramine'">Chloramine can cause skin, eye, and
-                        respiratory irritation, especially in sensitive individuals.</p>
-                    <p x-show="data.highestLowest.highest.name === 'chromium'">Hexavalent chromium exposure can lead to
-                        lung cancer, respiratory issues, and skin ulcers.</p>
-                    <p x-show="data.highestLowest.highest.name === 'copper'">Excessive copper intake can cause stomach
-                        pain, nausea, vomiting, and, in severe cases, liver or kidney damage.</p>
-                    <p x-show="data.highestLowest.highest.name === 'fluoride'">Overexposure to fluoride can lead to
-                        dental fluorosis in children and skeletal fluorosis in adults.</p>
-                    <p x-show="data.highestLowest.highest.name === 'bacteria'">Harmful bacteria in water can cause
-                        gastrointestinal issues, infections, and severe illness, particularly in immunocompromised
-                        individuals.</p>
-                    <p x-show="data.highestLowest.highest.name === 'viruses'">Viruses in water can cause diseases such
-                        as hepatitis, gastroenteritis, and other severe illnesses.</p>
-                    <p x-show="data.highestLowest.highest.name === 'lead'">Lead poisoning can cause developmental delays
-                        in children, kidney damage, and high blood pressure in adults.</p>
-                    <p x-show="data.highestLowest.highest.name === 'nitrates'">High nitrate levels can cause
-                        methemoglobinemia, or blue baby syndrome, which affects oxygen levels in the blood.</p>
-                    <p x-show="data.highestLowest.highest.name === 'nitrites'">Similar to nitrates, nitrites can cause
-                        oxygen deprivation in the blood, leading to serious health issues.</p>
-                    <p x-show="data.highestLowest.highest.name === 'mercury'">Mercury poisoning can result in tremors,
-                        emotional instability, insomnia, and memory issues. Chronic exposure can severely damage the
-                        nervous system and kidneys.</p>
-                    <p x-show="data.highestLowest.highest.name === 'perchlorate'">Perchlorate can interfere with thyroid
-                        function, leading to hormonal imbalances and developmental issues in children.</p>
-                    <p x-show="data.highestLowest.highest.name === 'radium'">Radium exposure increases the risk of bone
-                        cancer and other cancers due to its radioactive properties.</p>
-                    <p x-show="data.highestLowest.highest.name === 'selenium'">Too much selenium can cause nausea,
-                        diarrhea, skin rashes, and neurological symptoms.</p>
-                    <p x-show="data.highestLowest.highest.name === 'silver'">Excessive silver intake can lead to a
-                        condition called argyria, where the skin turns blue-gray due to silver buildup in tissues.</p>
-                    <p x-show="data.highestLowest.highest.name === 'uranium'">Can cause neurological issues, bone
-                        disease, and can affect the kidneys.</p>
+    </section><!-- /Services Section -->
 
-                </div>
-                <div class="grid-item">
-                    <strong>How to Fix Contaminant Levels:</strong>
-                    <p x-show="data.highestLowest.highest.name === 'aluminium'">Reverse osmosis, coagulation, and
-                        sedimentation.</p>
-                    <p x-show="data.highestLowest.highest.name === 'ammonia'">Chlorination, aeration, and biofiltration.
-                    </p>
-                    <p x-show="data.highestLowest.highest.name === 'arsenic'">Filtration, reverse osmosis, and ion
-                        exchange.</p>
-                    <p x-show="data.highestLowest.highest.name === 'barium'">Ion exchange and reverse osmosis.</p>
-                    <p x-show="data.highestLowest.highest.name === 'cadmium'">Ion exchange, reverse osmosis, and
-                        chemical precipitation.</p>
-                    <p x-show="data.highestLowest.highest.name === 'chloramine'">Activated carbon filtration and UV
-                        disinfection.</p>
-                    <p x-show="data.highestLowest.highest.name === 'chromium'">Chemical precipitation, ion exchange, and
-                        reverse osmosis.</p>
-                    <p x-show="data.highestLowest.highest.name === 'copper'">Corrosion control, filtration, and reverse
-                        osmosis.</p>
-                    <p x-show="data.highestLowest.highest.name === 'fluoride'">Activated alumina and reverse osmosis.
-                    </p>
-                    <p x-show="data.highestLowest.highest.name === 'bacteria'">Boiling, UV treatment, and chlorination.
-                    </p>
-                    <p x-show="data.highestLowest.highest.name === 'viruses'">Boiling, UV treatment, and chlorination.
-                    </p>
-                    <p x-show="data.highestLowest.highest.name === 'lead'">Pipe replacement, water filters, and
-                        corrosion control.</p>
-                    <p x-show="data.highestLowest.highest.name === 'nitrates'">Ion exchange and reverse osmosis.</p>
-                    <p x-show="data.highestLowest.highest.name === 'nitrites'">Ion exchange and reverse osmosis.</p>
-                    <p x-show="data.highestLowest.highest.name === 'mercury'">Chemical precipitation, filtration, and
-                        reverse osmosis.</p>
-                    <p x-show="data.highestLowest.highest.name === 'perchlorate'">Ion exchange and reverse osmosis.</p>
-                    <p x-show="data.highestLowest.highest.name === 'radium'">Ion exchange and reverse osmosis.</p>
-                    <p x-show="data.highestLowest.highest.name === 'selenium'">Ion exchange and filtration.</p>
-                    <p x-show="data.highestLowest.highest.name === 'silver'">Filtration and ion exchange.</p>
-                    <p x-show="data.highestLowest.highest.name === 'uranium'">Reverse osmosis and ion exchange.</p>
-                </div>
+    <!-- Contact Section -->
+    <section id="contact" class="contact section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Contact Us</h2>
+      
+      </div><!-- End Section Title -->
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row gy-4" data-aos="fade-up" data-aos-delay="200">
+
+          <div class="col-lg-4">
+            <div class="info-item d-flex flex-column justify-content-center align-items-center">
+              <i class="bi bi-geo-alt"></i>
+              <h3>Address</h3>
+              <p>69 Kingsway Avenue Johannesburg 2092</p>
             </div>
-        </div>
-        <div>
-         
-            <div>
-                <strong>Line Chart</strong>
-                <p>
-                    The line chart visually represents the levels of different contaminants in the water.
-                <ul>
-                    <span style="color: green;">● Safe</span>: Indicates contaminant levels within safe limits.
-                    <span style="color: red;">● Unsafe</span>: Highlights when contaminant levels exceed safety
-                        thresholds.
-                </ul>
-                By observing the chart, you can easily identify trends over time, compare multiple contaminants,
-                and spot periods of high risk when unsafe levels are detected. This visualization aids in making
-                quick and informed decisions regarding water quality.
-                </p>
+          </div><!-- End Info Item -->
+
+          <div class="col-lg-4">
+            <div class="info-item d-flex flex-column justify-content-center align-items-center info-item-borders">
+              <i class="bi bi-telephone"></i>
+              <h3>Call Us</h3>
+              <p>011 559 7570</p>
             </div>
+          </div><!-- End Info Item -->
+
+          <div class="col-lg-4">
+            <div class="info-item d-flex flex-column justify-content-center align-items-center">
+              <i class="bi bi-envelope"></i>
+              <h3>Email Us</h3>
+              <p>info@example.com</p>
+            </div>
+          </div><!-- End Info Item -->
+
         </div>
 
-        <div x-data="{ showGraph: false }">
-            <!-- Button to toggle graph visibility -->
-            <button @click="showGraph = !showGraph" class="show-graph-btn">
-                Show Line Graph
-            </button>
+        <form action="forms/contact.php" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="300">
+          <div class="row gy-4">
 
-            <!-- Line Graph Container -->
-            <div class="line-chart-container" x-show="showGraph" style="display: none;">
-                <div class="contaminant-key">
-                    <h3>Key:</h3>
-                    <div>
-                        <span style="color: rgb(4, 134, 4);">● Safe</span>
-                        <span style="color: red;">● Unsafe</span>
-                    </div>
-                </div>
-                <canvas id="lineChart" width="600" height="400"></canvas>
+            <div class="col-md-6">
+              <input type="text" name="name" class="form-control" placeholder="Your Name" required="">
             </div>
+
+            <div class="col-md-6 ">
+              <input type="email" class="form-control" name="email" placeholder="Your Email" required="">
+            </div>
+
+            <div class="col-md-12">
+              <input type="text" class="form-control" name="subject" placeholder="Subject" required="">
+            </div>
+
+            <div class="col-md-12">
+              <textarea class="form-control" name="message" rows="6" placeholder="Message" required=""></textarea>
+            </div>
+
+            <div class="col-md-12 text-center">
+              <div class="loading">Loading</div>
+              <div class="error-message"></div>
+              <div class="sent-message">Your message has been sent. Thank you!</div>
+
+              <button type="submit">Send Message</button>
+            </div>
+
+          </div>
+        </form><!-- End Contact Form -->
+
+      </div>
+
+    </section><!-- /Contact Section -->
+
+  </main>
+
+  <footer id="footer" class="footer light-background">
+    <div class="container">
+      <h3 class="sitename">WaterQuality</h3>
+      <p>Clean Water Starts with Knowledge</p>
+      <div class="social-links d-flex justify-content-center">
+        <a href=""><i class="bi bi-twitter-x"></i></a>
+        <a href=""><i class="bi bi-facebook"></i></a>
+        <a href=""><i class="bi bi-instagram"></i></a>
+        <a href=""><i class="bi bi-skype"></i></a>
+        <a href=""><i class="bi bi-linkedin"></i></a>
+      </div>
+      <div class="container">
+        <div class="copyright">
+          <span>Copyright</span>  <span>All Rights Reserved</span>
         </div>
+        <div class="credits">
+          <!-- All the links in the footer should remain intact. -->
+          <!-- You can delete the links only if you've purchased the pro version. -->
+          <!-- Licensing information: https://bootstrapmade.com/license/ -->
+          <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
+          Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+        </div>
+      </div>
+    </div>
+  </footer>
 
-    </main>
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
 
+  <!-- Preloader -->
+  <div id="preloader"></div>
 
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
 
-    <script src="alpine.js"></script>
+  <!-- Main JS File -->
+  <script src="assets/js/main.js"></script>
+
 </body>
 
 </html>
