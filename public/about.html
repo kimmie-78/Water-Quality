@@ -1,249 +1,545 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - Water Quality</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-        }
+    <title>Water Quality Dashboard</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        .sidebar {
-            height: 100vh;
-            width: 200px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #0077b6;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        }
 
-        .sidebar h2 {
-            color: white;
-            font-size: 24px;
-        }
-
-        .sidebar ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .sidebar ul li {
-            margin-bottom: 15px;
-        }
-
-        .sidebar ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-        }
-
-        .sidebar ul li a:hover {
-            text-decoration: underline;
-        }
-
-        .content {
-            margin-left: 220px; 
-            padding: 20px;
-            max-width: 1000px;
-        }
-
-        h1, h2 {
-            color: #0077b6;
-        }
-
-        .section {
-            margin-bottom: 40px;
-        }
-
-        .section h2 {
-            margin-top: 20px;
-        }
-
-        details {
-            margin-bottom: 20px;
-            background-color: #eef5fa;
-            padding: 15px;
-            border-left: 4px solid #0077b6;
-        }
-
-        summary {
-            font-weight: bold;
-            cursor: pointer;
-        }
-    </style>
+    <link href="stylesheet/styleab.css" rel="stylesheet" />
 </head>
-<body>
 
-    <!-- Sidebar Section -->
-    <div class="sidebar">
-        <h2>Dashboard</h2>
-        <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="#">Forum</a></li>
-            <li><a href="#">About Us</a></li>
-        </ul>
-    </div>
+<body x-data="waterQualityApp">
+    <!-- Sidebar -->
+    <aside class="sidebar">
 
-    <!-- Main Content Section -->
-    <div class="content">
-        <h1>About Us - Understanding Water Quality</h1>
-        <p>
-            Water quality is essential for human health, agriculture, and the environment. Ensuring that the water we drink and use is free of harmful contaminants is crucial for our well-being. In this page, we'll explain the most common contaminants found in water and methods to ensure water is safe to use and drink.
-        </p>
+        <div class="header">
 
-        <!-- Contaminants Section -->
-        <div class="section">
-            <h2>Common Contaminants in Water</h2>
+            <!--Content before waves-->
+            <div class="inner-header flex">
+                <path fill="#FFFFFF" stroke="#000000" stroke-width="10" stroke-miterlimit="10" d="M57,283" />
+                <g>
+                    <path fill="#fff"
+                        d="M250.4,0.8C112.7,0.8,1,112.4,1,250.2c0,137.7,111.7,249.4,249.4,249.4c137.7,0,249.4-111.7,249.4-249.4
+C499.8,112.4,388.1,0.8,250.4,0.8z M383.8,326.3c-62,0-101.4-14.1-117.6-46.3c-17.1-34.1-2.3-75.4,13.2-104.1
+c-22.4,3-38.4,9.2-47.8,18.3c-11.2,10.9-13.6,26.7-16.3,45c-3.1,20.8-6.6,44.4-25.3,62.4c-19.8,19.1-51.6,26.9-100.2,24.6l1.8-39.7		c35.9,1.6,59.7-2.9,70.8-13.6c8.9-8.6,11.1-22.9,13.5-39.6c6.3-42,14.8-99.4,141.4-99.4h41L333,166c-12.6,16-45.4,68.2-31.2,96.2	c9.2,18.3,41.5,25.6,91.2,24.2l1.1,39.8C390.5,326.2,387.1,326.3,383.8,326.3z" />
+                </g>
+                </svg>
+                <h2>Water Quality Dashboard</h2>
 
-            <details>
-                <summary>1. Aluminium</summary>
-                <p><strong>Description:</strong> Aluminium is a naturally occurring element, but high levels can enter water sources from industrial waste.</p>
-                <p><strong>Importance:</strong> Prolonged exposure to aluminium in drinking water can affect kidney function.</p>
-                <p><strong>Fix:</strong> Aluminium can be removed through chemical coagulation, where the contaminant binds to chemicals added to water, forming larger particles that can be filtered out.</p>
-            </details>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="indexf.html">Forum</a></li>
+                    <li><a href="indexd.html">Dashboard</a></li>
+                    <li><a href="#"> <button @click="downloadCSV" class="show-history-button">Download All Data as
+                                CSV</button></a></li>
+                </ul>
+            </div>
 
-            <details>
-                <summary>2. Ammonia</summary>
-                <p><strong>Description:</strong> Ammonia can be found in drinking water due to agricultural runoff, industrial waste, or the breakdown of organic matter.</p>
-                <p><strong>Importance:</strong> It can be toxic in high concentrations, affecting the respiratory system.</p>
-                <p><strong>Fix:</strong> Ammonia can be treated through biological filtration or chlorination to neutralize or break it down into safer compounds.</p>
-            </details>
 
-            <details>
-                <summary>3. Arsenic</summary>
-                <p><strong>Description:</strong> Arsenic is a toxic element that can contaminate water through natural deposits or industrial pollution.</p>
-                <p><strong>Importance:</strong> Long-term exposure to arsenic can cause serious health problems, including cancer.</p>
-                <p><strong>Fix:</strong> Arsenic can be effectively removed using reverse osmosis, ion exchange, or activated alumina.</p>
-            </details>
+            <!--Waves Container-->
+            <div>
+                <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                    viewBox="0 24 190 28" preserveAspectRatio="none" shape-rendering="auto">
+                    <defs>
+                        <path id="gentle-wave"
+                            d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+                    </defs>
+                    <g class="parallax">
+                        <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7" />
+                        <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
+                        <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(255,255,255,0.3)" />
+                        <use xlink:href="#gentle-wave" x="48" y="7" fill="#fff" />
+                    </g>
+                </svg>
+            </div>
+    </aside>
+    <main class="content">
+        <div class="main-content">
+            <div class="header-buttons">
+                <a href="index.html" class="home-button">Home</a>
+                <div class="dropdown">
+                    <a href="indexf.html">Forum</a>
+                    <a href="indexd.html">Dashboard</a>
+            
+                    <a href="#">
+                        <button @click="downloadCSV" class="show-history-button">Download All Data as CSV</button>
+                    </a>
+                </div>
+            </div>
+            <h1 class="fancy-title">Water Quality Information <a href="#"><i class='fas fa-user-circle'
+                        style='font-size:42px'></i></a></h1>
 
-            <details>
-                <summary>4. Barium</summary>
-                <p><strong>Description:</strong> Barium is a naturally occurring mineral that can seep into groundwater from drilling activities.</p>
-                <p><strong>Importance:</strong> High levels of barium can lead to cardiovascular and kidney problems.</p>
-                <p><strong>Fix:</strong> Barium can be reduced by ion exchange and reverse osmosis, which are effective at filtering it from drinking water.</p>
-            </details>
+           
+            <div class="tabz">
+                <div class="tab-section" x-data="{ activeTab: null }">
+                    <div class="tabs">
 
-            <details>
-                <summary>5. Cadmium</summary>
-                <p><strong>Description:</strong> Cadmium is a heavy metal that can enter water through industrial discharges and corrosion of pipes.</p>
-                <p><strong>Importance:</strong> Exposure to cadmium can lead to kidney damage and bone loss.</p>
-                <p><strong>Fix:</strong> Cadmium can be removed through reverse osmosis and ion exchange methods.</p>
-            </details>
+                        <!-- Tabs -->
+                        <button @click="activeTab = (activeTab === 1 ? null : 1)" class="tab-btn">Should I Have My Water
+                            Tested?</button>
+                        <div x-show="activeTab === 1" class="tab-content active">
+                            <p> Whether you should have your water tested depends on several factors, particularly those
+                                related to your health and your family’s well-being. Water quality issues can manifest
+                                as illness or less severe problems like unpleasant taste, color, odor, or staining of
+                                clothes and fixtures. Key considerations include the proximity of your water well to
+                                septic systems and the materials used in your home’s plumbing, which may affect water
+                                safety.</p>
+                        </div>
+                        <button @click="activeTab = (activeTab === 2 ? null : 2)" class="tab-btn">When to test the
+                            water?</button>
+                        <div x-show="activeTab === 2" class="tab-content active">
+                            <div class="table-container">
 
-            <details>
-                <summary>6. Chloramine</summary>
-                <p><strong>Description:</strong> Chloramine is used as a disinfectant in water treatment but can form harmful byproducts.</p>
-                <p><strong>Importance:</strong> High levels can cause respiratory issues and skin irritation.</p>
-                <p><strong>Fix:</strong> Chloramine can be removed by using activated carbon filtration.</p>
-            </details>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Conditions or nearby activities</th>
+                                            <th>Recommended Test</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Recurrent gastro-intestinal illness</td>
+                                            <td>Coliform bacteria</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Household plumbing contains lead</td>
+                                            <td>pH, lead, copper</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Radon in indoor air or region is radon rich</td>
+                                            <td>Radon</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Scaly residues, soaps don’t lather</td>
+                                            <td>Hardness</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Water softener needed to treat hardness</td>
+                                            <td>Manganese, iron</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Stained plumbing fixtures, laundry</td>
+                                            <td>Iron, copper, manganese</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Objectionable taste or smell</td>
+                                            <td>Hydrogen sulfide, corrosion, metals</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Water appears cloudy, frothy, or colored</td>
+                                            <td>Color, detergents</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Corrosion of pipes, plumbing</td>
+                                            <td>Corrosion, pH, lead</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Rapid wear of water treatment equipment</td>
+                                            <td>pH, corrosion</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nearby areas of intensive agriculture</td>
+                                            <td>Nitrate, pesticides, coliform bacteria</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Coal or other mining operation nearby</td>
+                                            <td>Metals, pH, corrosion</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Gas drilling operation nearby</td>
+                                            <td>Chloride, sodium, barium, strontium</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Odor of gasoline or fuel oil, near gas station or buried fuel tanks</td>
+                                            <td>Volatile organic compounds (VOC)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dump, junkyard, landfill, factory, or dry-cleaning operation nearby</td>
+                                            <td>VOC, total dissolved solids (TDS), pH, sulfate, chloride, metals</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Salty taste and seawater, or a heavily salted roadway nearby</td>
+                                            <td>Chloride, TDS, sodium</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div><button @click="activeTab = (activeTab === 3 ? null : 3)" class="tab-btn">Home Water
+                            Testing</button>
+                        <div x-show="activeTab === 3" class="tab-content active">
+                            <p>Home water testing is an important way to ensure that your drinking water is safe. Below
+                                is a
+                                table of common water tests you can perform at home:</p>
 
-            <details>
-                <summary>7. Chromium</summary>
-                <p><strong>Description:</strong> Chromium can enter water from industrial processes and is a known carcinogen.</p>
-                <p><strong>Importance:</strong> Exposure can lead to serious health issues, including cancer.</p>
-                <p><strong>Fix:</strong> Chromium can be treated with reduction methods or through reverse osmosis.</p>
-            </details>
 
-            <details>
-                <summary>8. Copper</summary>
-                <p><strong>Description:</strong> Copper can leach into water from plumbing systems and is a common contaminant.</p>
-                <p><strong>Importance:</strong> Excessive copper can cause gastrointestinal issues.</p>
-                <p><strong>Fix:</strong> Copper levels can be reduced using reverse osmosis and activated carbon filtration.</p>
-            </details>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Test</th>
+                                        <th>What it Detects</th>
+                                        <th>Importance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>pH Level</td>
+                                        <td>Acidity or alkalinity of water</td>
+                                        <td>Helps determine water quality and corrosiveness.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Nitrates</td>
+                                        <td>Nitrogen compounds</td>
+                                        <td>High levels can cause health issues, especially in infants.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Lead</td>
+                                        <td>Heavy metal contamination</td>
+                                        <td>Can cause serious health problems, especially in children.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bacteria</td>
+                                        <td>Pathogenic organisms</td>
+                                        <td>Can cause gastrointestinal diseases.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hardness</td>
+                                        <td>Concentration of calcium and magnesium</td>
+                                        <td>Can affect taste and scale build-up in pipes.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Chlorine</td>
+                                        <td>Disinfectant levels</td>
+                                        <td>High levels can cause taste and odor issues.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
-            <details>
-                <summary>9. Fluoride</summary>
-                <p><strong>Description:</strong> Fluoride is often added to drinking water for dental health but can be harmful in excess.</p>
-                <p><strong>Importance:</strong> High levels can lead to dental and skeletal fluorosis.</p>
-                <p><strong>Fix:</strong> Fluoride can be removed using reverse osmosis systems.</p>
-            </details>
 
-            <details>
-                <summary>10. Bacteria</summary>
-                <p><strong>Description:</strong> Bacteria can contaminate water from sewage and agricultural runoff.</p>
-                <p><strong>Importance:</strong> Pathogenic bacteria can cause serious illness and infections.</p>
-                <p><strong>Fix:</strong> Water can be treated using UV light or chlorination to kill bacteria.</p>
-            </details>
+                            <p>For more information, check out these resources:</p>
+                            <ul>
+                                <li><a href="https://www.youtube.com/watch?v=4C6mrmVUtdg" target="_blank">YouTube: Home
+                                        Water Testing Tutorial</a></li>
+                                <li><a href="https://www.h2olabcheck.com/blog/view/why-is-it-important-to-test-water#:~:text=Why%20is%20it%20important%20to%20test%20the%20quality%20of%20water,be%20done%20about%20its%20purity."
+                                        target="_blank">Article: Importance of Home Water Testing</a></li>
+                            </ul>
+                        </div>
+                        <button @click="activeTab = (activeTab === 4 ? null : 4)" class="tab-btn">How to Collect a Water
+                            Sample</button>
+                        <div x-show="activeTab === 4" class="tab-content active">
+                            <p>Collecting a water sample for testing requires careful handling to ensure accurate
+                                results. Follow these steps:</p>
 
-            <details>
-                <summary>11. Viruses</summary>
-                <p><strong>Description:</strong> Viruses can enter water supplies through human or animal waste.</p>
-                <p><strong>Importance:</strong> They can cause waterborne diseases, posing serious health risks.</p>
-                <p><strong>Fix:</strong> Effective filtration and UV treatment can eliminate viruses from water.</p>
-            </details>
 
-            <details>
-                <summary>12. Lead</summary>
-                <p><strong>Description:</strong> Lead can leach into drinking water from old pipes and plumbing fixtures.</p>
-                <p><strong>Importance:</strong> Lead exposure can have serious health impacts, especially in children.</p>
-                <p><strong>Fix:</strong> Lead can be reduced through point-of-use filters or by replacing lead-containing pipes.</p>
-            </details>
+                            <h3>Equipment Needed</h3>
+                            <ul>
+                                <li>Clean, sterilized sample bottle (preferably glass or plastic with a secure lid)</li>
+                                <li>Permanent marker for labeling</li>
+                                <li>Disposable gloves (optional but recommended)</li>
+                                <li>Cooler with ice packs (if transporting to a lab)</li>
+                            </ul>
 
-            <details>
-                <summary>13. Nitrates</summary>
-                <p><strong>Description:</strong> Nitrates often enter water from fertilizers and sewage.</p>
-                <p><strong>Importance:</strong> High levels can cause methemoglobinemia, or "blue baby syndrome," in infants.</p>
-                <p><strong>Fix:</strong> Nitrates can be removed using ion exchange or reverse osmosis.</p>
-            </details>
 
-            <details>
-                <summary>14. Nitrites</summary>
-                <p><strong>Description:</strong> Nitrites can form from the breakdown of nitrates and are harmful in high concentrations.</p>
-                <p><strong>Importance:</strong> They can affect oxygen transport in the blood.</p>
-                <p><strong>Fix:</strong> Similar to nitrates, nitrites can be removed through ion exchange methods.</p>
-            </details>
+                            <h3>Collection Steps</h3>
+                            <ol>
+                                <li>**Prepare the Bottle:** Make sure the sample bottle is clean and sterilized. Rinse
+                                    it with the water source you will be testing.</li>
+                                <li>**Turn on the Tap:** Let the water run for about 5-10 minutes to flush out any
+                                    stagnant water in the pipes.</li>
+                                <li>**Collect the Sample:** Fill the bottle to the neck (leaving some air space) and cap
+                                    it securely.</li>
+                                <li>**Label the Bottle:** Use a permanent marker to label the bottle with the date,
+                                    time, and location of the sample collection.</li>
+                                <li>**Transport the Sample:** If not testing immediately, store the sample in a cooler
+                                    with ice packs to maintain its temperature.</li>
+                            </ol>
 
-            <details>
-                <summary>15. Mercury</summary>
-                <p><strong>Description:</strong> Mercury can enter water through industrial discharges and mining activities.</p>
-                <p><strong>Importance:</strong> It can accumulate in fish and pose serious health risks to humans.</p>
-                <p><strong>Fix:</strong> Mercury can be treated using activated carbon filtration and distillation methods.</p>
-            </details>
 
-            <details>
-                <summary>16. Perchlorate</summary>
-                <p><strong>Description:</strong> Perchlorate is a chemical used in rocket fuel and can contaminate water supplies.</p>
-                <p><strong>Importance:</strong> It can interfere with thyroid function.</p>
-                <p><strong>Fix:</strong> Perchlorate can be removed through ion exchange and reverse osmosis.</p>
-            </details>
+                            <p>For additional guidance, check these resources:</p>
+                            <ul>
+                                <li><a href="https://www.youtube.com/watch?v=FO72pYKcLVM" target="_blank">YouTube: How
+                                        to Collect Water Samples</a></li>
+                                <li><a href="https://www.sciencedirect.com/science/article/abs/pii/S1474706507000915#:~:text=In%20South%20Africa%2C%20with%20its,could%20implement%20to%20overcome%20them."
+                                        target="_blank">Article: Proper Water Sample Collection Techniques</a></li>
+                            </ul>
 
-            <details>
-                <summary>17. Radium</summary>
-                <p><strong>Description:</strong> Radium is a naturally occurring radioactive element that can contaminate water sources.</p>
-                <p><strong>Importance:</strong> Long-term exposure can increase the risk of cancer.</p>
-                <p><strong>Fix:</strong> Radium can be removed using reverse osmosis and ion exchange methods.</p>
-            </details>
+                        </div>
+                        <button @click="activeTab = (activeTab === 5 ? null : 5)" class="tab-btn">How to use WQ
+                            Testing?</button>
+                        <div x-show="activeTab === 5" class="tab-content active">
+                            <h2>How to Check Contaminant Level</h2>
+                            <p>The <b>WaterQuality</b> web app provides an interactive way to monitor water
+                                quality, input new sample data, analyze contaminants, and visualize trends. By following
+                                these steps, users can effectively test and manage water contamination levels to ensure
+                                safety and compliance.</p>
+                            <h3>Steps to Test Water Contaminants</h3>
+                            <ol>
+                                <li><strong>Access the Dashboard:</strong> Navigate to the Water Quality Dashboard via
+                                    the main link.</li>
+                                <li><strong>View Current Data:</strong> Upon loading the page, check the Water Quality
+                                    Overview section for alerts and the latest sample data.</li>
+                                <li><strong>Add New Sample:</strong> Click the Add New Sample button to open the modal.
+                                    Fill out the form with the contaminant values (like aluminium, arsenic, etc.). Click
+                                    Submit to save the new sample data. This will help in monitoring water quality over
+                                    time.</li>
+                                <li><strong>Show History:</strong> Click the Show History button to view a list of all
+                                    previous samples. This popup will display the sample ID and contaminant values,
+                                    enabling you to track changes over time.</li>
+                                <li><strong>Analyze Contaminant Data:</strong> Review the Contaminant Information
+                                    section to understand which contaminant is currently the highest and its
+                                    implications for health. This section also provides solutions on how to reduce
+                                    contaminant levels.</li>
+                                <li><strong>Visualize Data with Charts:</strong> Use the line chart to visualize trends
+                                    in contaminant levels. This helps in identifying periods of concern and can guide
+                                    your responses. You can toggle the visibility of the line graph by clicking the Show
+                                    Line Graph button.</li>
+                                <li><strong>Download Data:</strong> If you want to keep a record of your data, click the
+                                    Download CSV button to download all sample data for external analysis.</li>
+                                <li><strong>Refresh Data:</strong> If you need the latest data from your source (e.g.,
+                                    if data is being updated in real-time), click the Refresh Data button in the
+                                    relevant section.</li>
+                            </ol>
+                        </div>
 
-            <details>
-                <summary>18. Selenium</summary>
-                <p><strong>Description:</strong> Selenium can enter water from industrial processes and natural deposits.</p>
-                <p><strong>Importance:</strong> High levels can lead to reproductive and developmental problems.</p>
-                <p><strong>Fix:</strong> Selenium can be treated using biological treatment and filtration methods.</p>
-            </details>
+                    </div>
 
-            <details>
-                <summary>19. Silver</summary>
-                <p><strong>Description:</strong> Silver can enter water through industrial waste and can have antimicrobial properties.</p>
-                <p><strong>Importance:</strong> While low levels are not harmful, high concentrations can be toxic.</p>
-                <p><strong>Fix:</strong> Silver can be removed using activated carbon filtration.</p>
-            </details>
 
-            <details>
-                <summary>20. Uranium</summary>
-                <p><strong>Description:</strong> Uranium can contaminate water from natural deposits and mining activities.</p>
-                <p><strong>Importance:</strong> Prolonged exposure can lead to kidney damage and increased cancer risk.</p>
-                <p><strong>Fix:</strong> Uranium can be removed through reverse osmosis and ion exchange methods.</p>
-            </details>
+
+                    <button @click="activeTab = (activeTab === 6 ? null : 6)" class="tab-btn">The Importance Of
+                        Water Analysis Methods </button>
+                    <div x-show="activeTab === 6" class="tab-content active">
+                        <p>Water analysis methods are crucial for a wide range of industries that rely on water for
+                            their operations, like the food and beverage industry. In this industry, water is used
+                            extensively in daily operations, such as cleaning, cooking, and ingredient preparation.
+                            Therefore, it is essential to analyze the quality of water at different points along the
+                            process to ensure that it meets the required standards for consumption and production.
+                            By completing a water analysis, you can detect any contaminants or impurities that may
+                            affect the taste, safety, and overall quality of the final product(s).</p>
+                    </div>
+
+
+
+
+
+                    <button @click="activeTab = (activeTab === 7 ? null : 7)" class="tab-btn">Common Contaminants in
+                        Water</button>
+                    <div x-show="activeTab === 7" class="tab-content active">
+
+                        <div class="contaminants-container">
+                            <details>
+                                <summary>1. Aluminium</summary>
+                                <p><strong>Description:</strong> Aluminium is a naturally occurring element, but high
+                                    levels can enter water sources from industrial waste.</p>
+                                <p><strong>Importance:</strong> Prolonged exposure to aluminium in drinking water can
+                                    affect kidney function.</p>
+                                <p><strong>Fix:</strong> Aluminium can be removed through chemical coagulation, where
+                                    the contaminant binds to chemicals added to water, forming larger particles that can
+                                    be filtered out.</p>
+                            </details>
+
+
+                            <details>
+                                <summary>2. Ammonia</summary>
+                                <p><strong>Description:</strong> Ammonia is commonly found in fertilizers and
+                                    wastewater.</p>
+                                <p><strong>Importance:</strong> High levels can be toxic to aquatic life and indicate
+                                    pollution.</p>
+                                <p><strong>Fix:</strong> It can be removed using biological treatment processes or
+                                    reverse osmosis systems.</p>
+                            </details>
+
+
+                            <details>
+                                <summary>3. Arsenic</summary>
+                                <p><strong>Description:</strong> A toxic element that can enter water sources from
+                                    natural deposits or industrial activities.</p>
+                                <p><strong>Importance:</strong> Long-term exposure to arsenic is linked to cancer and
+                                    skin lesions.</p>
+                                <p><strong>Fix:</strong> Effective methods include adsorption, reverse osmosis, and
+                                    distillation.</p>
+                            </details>
+
+
+                            <details>
+                                <summary>4. Bacteria</summary>
+                                <p><strong>Description:</strong> Pathogenic bacteria can enter water sources through
+                                    sewage and wastewater discharges.</p>
+                                <p><strong>Importance:</strong> Exposure can cause gastrointestinal illnesses.</p>
+                                <p><strong>Fix:</strong> Bacteria can be eliminated through boiling, chlorination, or UV
+                                    treatment.</p>
+                            </details>
+                            <details>
+                                <summary>5. Cadmium</summary>
+                                <p><strong>Description:</strong> Cadmium is a heavy metal that can enter water through
+                                    industrial discharges and corrosion of pipes.</p>
+                                <p><strong>Importance:</strong> Exposure to cadmium can lead to kidney damage and bone
+                                    loss.</p>
+                                <p><strong>Fix:</strong> Cadmium can be removed through reverse osmosis and ion exchange
+                                    methods.</p>
+                            </details>
+
+
+                            <details>
+                                <summary>6. Chlorine</summary>
+                                <p><strong>Description:</strong> A chemical used in water treatment to kill harmful
+                                    microorganisms.</p>
+                                <p><strong>Importance:</strong> While beneficial, high chlorine levels can cause taste
+                                    and odor issues.</p>
+                                <p><strong>Fix:</strong> Activated carbon filters can remove excess chlorine from water.
+                                </p>
+                            </details>
+                            <details>
+                                <summary>7. Chromium</summary>
+                                <p><strong>Description:</strong> Chromium can enter water from industrial processes and
+                                    is a known carcinogen.</p>
+                                <p><strong>Importance:</strong> Exposure can lead to serious health issues, including
+                                    cancer.</p>
+                                <p><strong>Fix:</strong> Chromium can be treated with reduction methods or through
+                                    reverse osmosis.</p>
+                            </details>
+
+                            <details>
+                                <summary>8. Copper</summary>
+                                <p><strong>Description:</strong> Copper can leach into water from plumbing systems and
+                                    is a common contaminant.</p>
+                                <p><strong>Importance:</strong> Excessive copper can cause gastrointestinal issues.</p>
+                                <p><strong>Fix:</strong> Copper levels can be reduced using reverse osmosis and
+                                    activated carbon filtration.</p>
+                            </details>
+
+                            <details>
+                                <summary>9. Fluoride</summary>
+                                <p><strong>Description:</strong> Fluoride is often added to drinking water for dental
+                                    health but can be harmful in excess.</p>
+                                <p><strong>Importance:</strong> High levels can lead to dental and skeletal fluorosis.
+                                </p>
+                                <p><strong>Fix:</strong> Fluoride can be removed using reverse osmosis systems.</p>
+                            </details>
+
+                            <details>
+                                <summary>10. Bacteria</summary>
+                                <p><strong>Description:</strong> Bacteria can contaminate water from sewage and
+                                    agricultural runoff.</p>
+                                <p><strong>Importance:</strong> Pathogenic bacteria can cause serious illness and
+                                    infections.</p>
+                                <p><strong>Fix:</strong> Water can be treated using UV light or chlorination to kill
+                                    bacteria.</p>
+                            </details>
+
+                            <details>
+                                <summary>11. Viruses</summary>
+                                <p><strong>Description:</strong> Viruses can enter water supplies through human or
+                                    animal waste.</p>
+                                <p><strong>Importance:</strong> They can cause waterborne diseases, posing serious
+                                    health risks.</p>
+                                <p><strong>Fix:</strong> Effective filtration and UV treatment can eliminate viruses
+                                    from water.</p>
+                            </details>
+
+                            <details>
+                                <summary>12. Lead</summary>
+                                <p><strong>Description:</strong> Lead can leach into drinking water from old pipes and
+                                    plumbing fixtures.</p>
+                                <p><strong>Importance:</strong> Lead exposure can have serious health impacts,
+                                    especially in children.</p>
+                                <p><strong>Fix:</strong> Lead can be reduced through point-of-use filters or by
+                                    replacing lead-containing pipes.</p>
+                            </details>
+
+                            <details>
+                                <summary>13. Nitrates</summary>
+                                <p><strong>Description:</strong> Nitrates often enter water from fertilizers and sewage.
+                                </p>
+                                <p><strong>Importance:</strong> High levels can cause methemoglobinemia, or "blue baby
+                                    syndrome," in infants.</p>
+                                <p><strong>Fix:</strong> Nitrates can be removed using ion exchange or reverse osmosis.
+                                </p>
+                            </details>
+
+                            <details>
+                                <summary>14. Nitrites</summary>
+                                <p><strong>Description:</strong> Nitrites can form from the breakdown of nitrates and
+                                    are harmful in high concentrations.</p>
+                                <p><strong>Importance:</strong> They can affect oxygen transport in the blood.</p>
+                                <p><strong>Fix:</strong> Similar to nitrates, nitrites can be removed through ion
+                                    exchange methods.</p>
+                            </details>
+
+                            <details>
+                                <summary>15. Mercury</summary>
+                                <p><strong>Description:</strong> Mercury can enter water through industrial discharges
+                                    and mining activities.</p>
+                                <p><strong>Importance:</strong> It can accumulate in fish and pose serious health risks
+                                    to humans.</p>
+                                <p><strong>Fix:</strong> Mercury can be treated using activated carbon filtration and
+                                    distillation methods.</p>
+                            </details>
+
+                            <details>
+                                <summary>16. Perchlorate</summary>
+                                <p><strong>Description:</strong> Perchlorate is a chemical used in rocket fuel and can
+                                    contaminate water supplies.</p>
+                                <p><strong>Importance:</strong> It can interfere with thyroid function.</p>
+                                <p><strong>Fix:</strong> Perchlorate can be removed through ion exchange and reverse
+                                    osmosis.</p>
+                            </details>
+
+                            <details>
+                                <summary>17. Radium</summary>
+                                <p><strong>Description:</strong> Radium is a naturally occurring radioactive element
+                                    that can contaminate water sources.</p>
+                                <p><strong>Importance:</strong> Long-term exposure can increase the risk of cancer.</p>
+                                <p><strong>Fix:</strong> Radium can be removed using reverse osmosis and ion exchange
+                                    methods.</p>
+                            </details>
+
+                            <details>
+                                <summary>18. Selenium</summary>
+                                <p><strong>Description:</strong> Selenium can enter water from industrial processes and
+                                    natural deposits.</p>
+                                <p><strong>Importance:</strong> High levels can lead to reproductive and developmental
+                                    problems.</p>
+                                <p><strong>Fix:</strong> Selenium can be treated using biological treatment and
+                                    filtration methods.</p>
+                            </details>
+
+                            <details>
+                                <summary>19. Silver</summary>
+                                <p><strong>Description:</strong> Silver can enter water through industrial waste and can
+                                    have antimicrobial properties.</p>
+                                <p><strong>Importance:</strong> While low levels are not harmful, high concentrations
+                                    can be toxic.</p>
+                                <p><strong>Fix:</strong> Silver can be removed using activated carbon filtration.</p>
+                            </details>
+
+                            <details>
+                                <summary>20. Uranium</summary>
+                                <p><strong>Description:</strong> Uranium can contaminate water from natural deposits and
+                                    mining activities.</p>
+                                <p><strong>Importance:</strong> Prolonged exposure can lead to kidney damage and
+                                    increased cancer risk.</p>
+                                <p><strong>Fix:</strong> Uranium can be removed through reverse osmosis and ion exchange
+                                    methods.</p>
+                            </details>
+                        </div>
+                    </div>
+                    <!-- <button @click="activeTab = (activeTab === 8 ? null : 8)" class="tab-btn">Tab 5</button>
+                    <div x-show="activeTab === 8" class="tab-content">
+                        <p>Content for Tab 5</p>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
 
         </div>
-    </div>
-
+    </main>
+    <script src="alpined.js"></script>
 </body>
+
 </html>
