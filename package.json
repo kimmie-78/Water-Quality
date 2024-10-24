@@ -1,7 +1,7 @@
 {
   "name": "water-quality",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "express.js",
   "type": "module",
   "license": "AGPL-version-3.0",
   "private": false,
@@ -20,7 +20,8 @@
   "contributors": [],
   "scripts": {
     "dev": "",
-    "test": ""
+    "test": "",
+    "start": "node express.js"
   },
   "dependencies": {
     "alpinejs": "^3.14.1",

@@ -1,27 +1,23 @@
+// express.js
 import express from 'express';
-import * as sqlite from 'sqlite';
-import sqlite3 from 'sqlite3';
+import forumRoutes from './routes/forumRoutes.js'; // Note the .js extension
+import dashboardRoutes from './routes/dashboardRoutes.js';
+
 import cors from 'cors';
-import { Server } from 'socket.io';
-import http from 'http';
-import { isSafe, replaceNullWithZero } from './is_safe.js';
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
-const PORT = process.env.PORT || 4000;
 
-app.use(cors());
-app.use(express.static('public'));
+
+// Middleware
 app.use(express.json());
+app.use(express.static('public'));
+app.use(cors());
 
-(async () => {
-    // Initialize and migrate the database
-    const db = await sqlite.open({
-        filename: './water_quality.db',
-        driver: sqlite3.Database
-    });
+// Register routes
+app.use('/api/forum', forumRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
+<<<<<<< HEAD
     await db.migrate();
 
     // Create a new water sample
@@ -148,3 +144,7 @@ io.on('connection', (socket) => {
 
 
 
+=======
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`Server running on port ${port}`));
+>>>>>>> 74308063092e7fde8e9f9802b5c4cb025b506513
