@@ -353,3 +353,31 @@ c-22.4,3-38.4,9.2-47.8,18.3c-11.2,10.9-13.6,26.7-16.3,45c-3.1,20.8-6.6,44.4-25.3
 </body>
 
 </html>
+
+
+<div class="container" x-data="waterSamples()">
+    <h1>Water Quality Samples</h1>
+    <canvas id="waterQualityChart"></canvas>
+    <button @click="fetchSamples()">Refresh Data</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Aluminium</th>
+                <th>Ammonia</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <template x-for="sample in limitedSamples" :key="sample.id">
+                <tr :class="sample.is_safe ? 'safe' : 'unsafe'">
+                    <td x-text="sample.id"></td>
+                    <td x-text="sample.aluminium"></td>
+                    <td x-text="sample.ammonia"></td>
+                    <td x-text="sample.is_safe ? 'Safe' : 'Unsafe'"></td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+</div>
