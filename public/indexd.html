@@ -7,7 +7,7 @@
     <title>Water Quality Dashboard</title>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+
 
     <link href="stylesheet/styles.css" rel="stylesheet" />
 </head>
@@ -84,6 +84,8 @@ c-22.4,3-38.4,9.2-47.8,18.3c-11.2,10.9-13.6,26.7-16.3,45c-3.1,20.8-6.6,44.4-25.3
                 <div class="modal-content">
                     <h2>Add New Water Sample</h2>
                     <form @submit.prevent="submitSample">
+                        <button type="button" @click="setSafeSample()">Add Safe Values</button>
+                        <button type="button" @click="setUnsafeSample()">Add Unsafe Values</button>
                         <label for="aluminium">Aluminium:</label>
                         <input type="number" id="aluminium" x-model="newSample.aluminium" step="0.000001" required>
 
@@ -148,6 +150,26 @@ c-22.4,3-38.4,9.2-47.8,18.3c-11.2,10.9-13.6,26.7-16.3,45c-3.1,20.8-6.6,44.4-25.3
                         <button type="button" @click="closeModal()">Cancel</button>
                     </form>
                 </div>
+            </div>
+            <!-- Chat button -->
+            <button id="open-chat-btn">Chat with AquaBot</button>
+
+            <!-- Chat overlay -->
+            <div id="chat-overlay">
+                <div id="chat-window">
+                    <div id="chat-header">AquaBot</div>
+                    <span id="chat-close">&times;</span>
+                    <div id="chat-history"></div>
+                    <form id="chat-form">
+                        <div id="chat-input-container">
+                            <input type="text" id="user-input" placeholder="Type your message here...">
+                            <button id="send-btn" type="submit">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div id="loader">
+                <img src="assets/img/water.gif" width="150px" alt="Loading...">
             </div>
 
             <!-- <button @click="openModal()">Add New Sample</button> -->
@@ -289,6 +311,9 @@ c-22.4,3-38.4,9.2-47.8,18.3c-11.2,10.9-13.6,26.7-16.3,45c-3.1,20.8-6.6,44.4-25.3
                                         <td x-text="sample.uranium"></td>
 
                                         <td x-text="sample.is_safe ? 'Safe' : 'Contaminated'"></td>
+                                        <!-- <td>
+                                            <button @click="deleteSample(sample.id)">Delete</button>
+                                        </td> -->
                                     </tr>
                                 </template>
                             </tbody>
@@ -299,6 +324,72 @@ c-22.4,3-38.4,9.2-47.8,18.3c-11.2,10.9-13.6,26.7-16.3,45c-3.1,20.8-6.6,44.4-25.3
         </div>
     </main>
     <script src="alpined.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const openChatBtn = document.getElementById('open-chat-btn');
+            const chatOverlay = document.getElementById('chat-overlay');
+            const chatCloseBtn = document.getElementById('chat-close');
+            const chatForm = document.getElementById('chat-form');
+            const chatHistory = document.getElementById('chat-history');
+            const userInput = document.getElementById('user-input');
+            const loader = document.getElementById('loader');
+
+            // Toggle chat overlay visibility
+            openChatBtn.addEventListener('click', () => {
+                chatOverlay.style.display = 'flex'; // Show chat overlay
+            });
+
+            chatCloseBtn.addEventListener('click', () => {
+                chatOverlay.style.display = 'none'; // Hide chat overlay
+            });
+
+            chatForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const message = userInput.value;
+                userInput.value = ''; // Clear input
+
+                // Add user message to chat
+                chatHistory.innerHTML += `<div class="user-message">${message}</div>`;
+                chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll to bottom
+
+                loader.style.display = 'block'; // Show the loader
+
+                try {
+                    // Send message to server
+                    const response = await fetch('/api/aquaBot/chat', { // Ensure the endpoint is correct
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userInput: message })
+                    });
+
+                    // Check if the response is OK
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+
+                    const data = await response.json();
+
+                    // Check if the data structure is as expected
+                    if (!data || !data.response) {
+                        throw new Error('Response is undefined');
+                    }
+
+                    const botMessage = data.response;
+
+                    // Display AquaBot's response
+                    chatHistory.innerHTML += `<div class="bot-message">${botMessage}</div>`;
+                } catch (error) {
+                    console.error("Error:", error);
+                    chatHistory.innerHTML += `<div class="bot-message">Error: ${error.message}</div>`; // Display error message
+                } finally {
+                    loader.style.display = 'none'; // Hide the loader after the message is sent
+                    chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll to bottom after loading
+                }
+            });
+        });
+    </script>
+
+
 </body>
 
 </html>

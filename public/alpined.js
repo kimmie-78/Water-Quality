@@ -23,7 +23,7 @@ function waterQualityApp() {
             silver: null,
             uranium: null,
         },
-        submittedSamples: [], 
+        submittedSamples: [],
         contaminants: [
             { name: 'aluminium', threshold: 0.2 },
             { name: 'ammonia', threshold: 0.5 },
@@ -47,7 +47,7 @@ function waterQualityApp() {
             { name: 'uranium', threshold: 0.03 },
         ],
         chartData: {},
-      
+
         chart: null,
         lineChart: null,
         samples: [],
@@ -73,7 +73,7 @@ function waterQualityApp() {
             silver: 0.1,
             uranium: 0.03
         },
-       
+
         async init() {
             this.showHistory = false;
 
@@ -150,10 +150,90 @@ function waterQualityApp() {
                 })
                 .catch(error => console.error('Error submitting sample:', error));
         },
-        getSampleValue(contaminantName) {
-            // Check the last submitted sample first, and fallback to the fetched sample if none are submitted
-            let lastSample = this.submittedSamples[this.submittedSamples.length - 1] || this.samples[this.samples.length - 1];
 
+        setSafeSample() {
+            this.newSample = {
+                aluminium: 0.1,
+                ammonia: 0.3,
+                arsenic: 0.005,
+                barium: 0.03,
+                cadmium: 0.001,
+                chloramine: 0.4,
+                chromium: 0.01,
+                copper: 0.02,
+                fluoride: 0.7,
+                bacteria: 0.001,
+                viruses: 0.001,
+                lead: 0.005,
+                nitrates: 0.05,
+                nitrites: 0.01,
+                mercury: 0.001,
+                perchlorate: 0.002,
+                radium: 0.002,
+                selenium: 0.01,
+                silver: 0.002,
+                uranium: 0.002,
+                is_safe: true // Mark as safe
+            };
+        },
+
+        setUnsafeSample() {
+            this.newSample = {
+                aluminium: 0.3,
+                ammonia: 0.6,
+                arsenic: 0.02,
+                barium: 3,
+                cadmium: 0.02,
+                chloramine: 5,
+                chromium: 0.1,
+                copper: 3,
+                fluoride: 1.5,
+                bacteria: 100,
+                viruses: 50,
+                lead: 0.05,
+                nitrates: 15,
+                nitrites: 1,
+                mercury: 0.005,
+                perchlorate: 0.02,
+                radium: 5,
+                selenium: 0.1,
+                silver: 0.1,
+                uranium: 0.1,
+                is_safe: false // Mark as contaminated
+            };
+        },
+
+        isSampleSafe(sample) {
+            // Define threshold values for each contaminant
+            const thresholds = {
+                aluminium: 0.2,
+                ammonia: 0.5,
+                arsenic: 0.01,
+                barium: 2,
+                cadmium: 0.01,
+                chloramine: 3,
+                chromium: 0.07,
+                copper: 2,
+                fluoride: 1.0,
+                bacteria: 1,
+                viruses: 1,
+                lead: 0.02,
+                nitrates: 10,
+                nitrites: 1,
+                mercury: 0.002,
+                perchlorate: 0.01,
+                radium: 1,
+                selenium: 0.05,
+                silver: 0.05,
+                uranium: 0.04,
+            };
+
+            // Check if each contaminant is below its threshold
+            return Object.keys(thresholds).every(key => sample[key] <= thresholds[key]);
+        },
+
+        getSampleValue(contaminantName) {
+            let lastSample = this.submittedSamples[this.submittedSamples.length - 1] || this.samples[this.samples.length - 1];
             return lastSample ? lastSample[contaminantName] : 'No data';
         },
         getClass(contaminant) {
@@ -240,7 +320,7 @@ function waterQualityApp() {
         },
         updateChartData() {
             const latestSample = this.samples[this.samples.length - 1];
-            console.log('Latest Sample:', latestSample); // Check the latest sample data
+            console.log('Latest Sample:', latestSample);
             const contaminantKeys = Object.keys(latestSample).filter(key => key !== 'id');
 
             const chartData = contaminantKeys.map(key => ({
@@ -276,16 +356,16 @@ function waterQualityApp() {
                     },
                     {
                         label: 'Threshold Values',
-                        data: contaminantKeys.map(key => this.thresholds[key]), // Ensure this matches the correct contaminant names
+                        data: contaminantKeys.map(key => this.thresholds[key]),
                         borderColor: '#36A2EB',
                         fill: false,
                         tension: 0.1,
-                        borderDash: [5, 5] // Dotted line for thresholds
+                        borderDash: [5, 5]
                     }
                 ]
             };
 
-            console.log('Line Chart Data:', lineChartData); // Log the line chart data for debugging
+            console.log('Line Chart Data:', lineChartData);
 
             this.renderLineChart(lineChartData);
         },
@@ -295,7 +375,7 @@ function waterQualityApp() {
             if (ctx) {
                 const canvasContext = ctx.getContext('2d');
                 if (this.chart) {
-                    this.chart.destroy(); // Destroy previous chart if it exists
+                    this.chart.destroy();
                 }
 
                 console.log("Rendering chart with data:", this.chartData);
@@ -313,7 +393,7 @@ function waterQualityApp() {
                                         if (label) {
                                             label += ': ';
                                         }
-                                        label += context.raw + ' units'; // Display units
+                                        label += context.raw + ' units';
                                         return label;
                                     }
                                 }
@@ -340,8 +420,8 @@ function waterQualityApp() {
                     responsive: true,
                     scales: {
                         y: {
-                            beginAtZero: false, // Change this if your data can be below zero
-                            min: 0 // Set a minimum value for the y-axis if necessary
+                            beginAtZero: false,
+                            min: 0
                         },
                     },
                     plugins: {

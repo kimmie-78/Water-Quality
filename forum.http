@@ -6,3 +6,10 @@ GET http://localhost:3000/api/forum/comments/:postId
 POST http://localhost:3000/api/forum/comments
 
 POST http://localhost:3000/api/forum/posts/new
+### Test the AquaBot chat endpoint
+POST http://localhost:3000/api/aquabot/ask
+Content-Type: application/json
+
+{
+  "userInput": "What can you tell me about water contaminants?"
+}
