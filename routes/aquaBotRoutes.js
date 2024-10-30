@@ -1,8 +1,12 @@
 import express from 'express';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const router = express.Router();
-const API_KEY = 'AIzaSyDrF-MkmoleRZIrVEeGaP44ahqRyq28l80'; // Consider storing this in .env
+const API_KEY = process.env.API_KEY;
 
 async function initializeAquaBot(userInput) {
   const genAI = new GoogleGenerativeAI(API_KEY);
@@ -153,7 +157,7 @@ router.post('/chat', async (req, res) => {
       }
   
       const response = await initializeAquaBot(userInput);
-      res.json({ response }); // Ensure this returns an object with a 'response' key
+      res.json({ response }); 
     } catch (error) {
       console.error('Error in /chat endpoint:', error);
       res.status(500).json({ error: 'Internal Server Error' });
